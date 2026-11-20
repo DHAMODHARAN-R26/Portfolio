@@ -1,8 +1,11 @@
 import { notFound } from 'next/navigation';
 import AdminDashboard from '../../components/AdminDashboard';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminPage({ params }) {
-  const { admin } = await params;
+  const resolvedParams = await params;
+  const admin = resolvedParams?.admin;
   
   // Retrieve secret path configuration from env
   const secretPath = process.env.SECRET_ADMIN_PATH || '/secret-admin-door';

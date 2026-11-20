@@ -4,11 +4,12 @@ import { apiFetch } from '../lib/api';
 
 export default function AIChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(true);
   const [messages, setMessages] = useState([
     {
       id: 'welcome',
       sender: 'bot',
-      text: "Hi! I'm the AI assistant for Dhamodharan. I can answer questions about his skills, experience, projects, or how to contact him. What would you like to know?"
+      text: "👋 Hi! I'm ZAZA, Dhamodharan's personal AI companion.\n\nAsk me anything about his software engineering background, IoT architectures, academic record (9.05 CGPA), or hireability fit for your engineering team!"
     }
   ]);
   const [inputValue, setInputValue] = useState('');
@@ -18,10 +19,10 @@ export default function AIChatbotWidget() {
   const msgIdRef = useRef(0);
 
   useEffect(() => {
-    if (chatEndRef.current) {
+    if (chatEndRef.current && isOpen) {
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, loading]);
+  }, [messages, loading, isOpen]);
 
   const handleSend = async (textToSend) => {
     const text = textToSend || inputValue.trim();
@@ -29,13 +30,13 @@ export default function AIChatbotWidget() {
 
     if (!textToSend) setInputValue('');
     setErrorMsg('');
-    
+    setShowTooltip(false);
+
     const userMsg = { id: `msg-${++msgIdRef.current}`, sender: 'user', text };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
 
     try {
-      // Map history format for server
       const chatHistory = messages.map((m) => ({
         sender: m.sender,
         text: m.text
@@ -57,138 +58,250 @@ export default function AIChatbotWidget() {
       setMessages((prev) => [...prev, botMsg]);
     } catch (err) {
       console.error(err);
-      setErrorMsg(err.message || 'Something went wrong. Please try again.');
+      setErrorMsg(err.message || 'Unable to connect to ZAZA assistant service.');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleClearChat = () => {
+    setMessages([
+      {
+        id: 'welcome',
+        sender: 'bot',
+        text: "👋 Chat reset! I'm ZAZA. What would you like to know about Dhamodharan?"
+      }
+    ]);
+    setErrorMsg('');
+  };
+
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       handleSend();
     }
   };
 
   const quickPrompts = [
-    'What are your core skills?',
-    'Tell me about your projects.',
-    'How do I hire you?'
+    'Who is Dhamodharan?',
+    'Technical Stack & DSA',
+    'Flagship IoT Systems',
+    'Why hire Dhamodharan?',
+    'Contact Information'
   ];
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans">
-      {/* Floating Toggle Button */}
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="flex items-center justify-center w-14 h-14 rounded-full bg-accent hover:bg-accent-hover text-white shadow-xl cursor-pointer hover:scale-105 transition-all animate-float"
-        >
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-          </svg>
-        </button>
+    <>
+      {/* Mobile Backdrop Scrim when chat is open */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 sm:hidden animate-in fade-in duration-200"
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        />
       )}
 
-      {/* Chat Window Panel */}
-      {isOpen && (
-        <div className="w-[360px] md:w-[400px] h-[520px] rounded-2xl glass-panel shadow-2xl flex flex-col overflow-hidden border border-card-border animate-fade-in">
-          {/* Header */}
-          <div className="p-4 bg-accent text-white flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="relative">
-                <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center font-bold">
-                  🤖
-                </div>
-                <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-accent" />
+      {/* Floating Widget Container — Ergonomically offset across all device screen sizes */}
+      <div className="fixed bottom-3 right-3 xs:bottom-5 xs:right-4 sm:bottom-7 sm:right-7 lg:bottom-8 lg:right-8 z-50 max-w-[calc(100vw-1.5rem)]">
+        {/* Floating Futuristic Launcher */}
+        {!isOpen && (
+          <div className="relative flex flex-col items-end">
+            {/* Friendly Greeting Speech Bubble */}
+            {showTooltip && (
+              <div className="hidden sm:flex items-center gap-2 mb-2.5 px-3.5 py-1.5 rounded-2xl bg-bg-surface/95 border border-border-hover shadow-xl backdrop-blur-md text-xs text-text-primary animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="font-sans font-medium text-text-secondary">
+                  Chat with <strong className="text-text-primary font-bold">ZAZA</strong>
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowTooltip(false);
+                  }}
+                  className="text-text-muted hover:text-text-primary ml-1 text-xs"
+                  aria-label="Dismiss tooltip"
+                >
+                  ×
+                </button>
               </div>
-              <div>
-                <h3 className="font-semibold text-sm">AI Representative</h3>
-                <span className="text-[10px] opacity-75">Ask about skills, work & more</span>
-              </div>
-            </div>
+            )}
+
             <button
-              onClick={() => setIsOpen(false)}
-              className="text-white/80 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-colors cursor-pointer"
+              onClick={() => {
+                setIsOpen(true);
+                setShowTooltip(false);
+              }}
+              className="flex items-center gap-2 xs:gap-2.5 px-3.5 xs:px-4 py-2 xs:py-2.5 rounded-full border border-accent/40 bg-bg-surface/95 hover:bg-bg-surface text-text-primary shadow-2xl backdrop-blur-2xl transition-all duration-300 cursor-pointer group hover:scale-105 hover:border-accent hover:shadow-[0_0_24px_rgba(99,102,241,0.35)] min-h-[44px]"
+              aria-label="Open ZAZA AI Assistant"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              {/* Glowing Avatar Indicator */}
+              <div className="relative flex items-center justify-center shrink-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-accent via-indigo-500 to-sky-400 p-[1.5px] shadow-sm">
+                  <div className="w-full h-full rounded-full bg-bg-surface flex items-center justify-center text-xs font-black text-accent font-sans">
+                    ⚡
+                  </div>
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-bg-surface animate-pulse" />
+              </div>
+
+              {/* Identity & Status */}
+              <div className="flex flex-col text-left">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs sm:text-sm font-black tracking-tight text-text-primary font-sans">
+                    ZAZA
+                  </span>
+                  <span className="text-[9px] font-sans font-bold text-accent px-1.5 py-0.2 rounded bg-accent/15 border border-accent/25">
+                    AI
+                  </span>
+                </div>
+                <span className="text-[10px] font-sans font-medium text-emerald-500 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span>ONLINE</span>
+                </span>
+              </div>
             </button>
           </div>
+        )}
 
-          {/* Messages List */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-background/30">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                    msg.sender === 'user'
-                      ? 'bg-accent text-white rounded-br-none'
-                      : 'bg-white dark:bg-[#2a1a4a] text-black dark:text-white border border-card-border rounded-bl-none'
-                  }`}
+        {/* Futuristic Glass Chat Drawer — Responsive on Mobile, Tablet & Widescreen Desktop */}
+        {isOpen && (
+          <div className="fixed inset-x-2.5 bottom-2.5 xs:inset-x-3 xs:bottom-3 sm:static sm:inset-auto w-auto sm:w-[390px] md:w-[410px] h-[82vh] sm:h-[560px] max-h-[640px] rounded-2xl xs:rounded-3xl glass-panel border border-border-hover bg-bg-surface/98 sm:bg-bg-surface/95 backdrop-blur-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
+
+            {/* Header */}
+            <div className="px-4 sm:px-5 py-3.5 border-b border-border-subtle flex items-center justify-between bg-bg-surface/90 backdrop-blur-md">
+              <div className="flex items-center gap-3">
+                <div className="relative flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-accent via-indigo-500 to-sky-400 p-[1.5px] shadow-sm">
+                    <div className="w-full h-full rounded-full bg-bg-surface flex items-center justify-center text-xs font-black text-accent font-sans">
+                      ⚡
+                    </div>
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-bg-surface animate-pulse" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-sm font-black text-text-primary font-sans tracking-tight">
+                      ZAZA
+                    </h3>
+                    <span className="text-[9px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 font-sans">
+                      ACTIVE
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-text-muted font-sans font-medium">
+                    Dhamodharan&apos;s AI Companion
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Controls */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleClearChat}
+                  className="text-text-muted hover:text-text-primary p-2 rounded-xl hover:bg-bg-elevated transition-colors cursor-pointer"
+                  title="Clear conversation"
+                  aria-label="Clear conversation"
                 >
-                  <p className="whitespace-pre-line">{msg.text}</p>
-                </div>
-              </div>
-            ))}
-            {loading && (
-              <div className="flex justify-start">
-                <div className="bg-card text-foreground border border-card-border px-3.5 py-2.5 rounded-2xl rounded-bl-none text-sm flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-foreground/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-1.5 h-1.5 bg-foreground/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-1.5 h-1.5 bg-foreground/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                </div>
-              </div>
-            )}
-            {errorMsg && (
-              <div className="p-3 text-xs bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl">
-                {errorMsg}
-              </div>
-            )}
-            <div ref={chatEndRef} />
-          </div>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
 
-          {/* Quick Prompts */}
-          {messages.length === 1 && !loading && (
-            <div className="px-4 py-2 flex flex-wrap gap-2 bg-background/20 border-t border-card-border/50">
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="text-text-muted hover:text-text-primary p-2 rounded-xl hover:bg-bg-elevated transition-colors cursor-pointer"
+                  aria-label="Close ZAZA Assistant"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Messages Stream */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-bg-main/30 text-xs sm:text-[13px]">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {msg.sender === 'bot' && (
+                    <div className="w-6 h-6 rounded-full bg-accent/15 border border-accent/30 text-[10px] font-black text-accent flex items-center justify-center mr-2 shrink-0 self-end mb-1">
+                      Z
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[85%] px-4 py-2.5 rounded-2xl leading-relaxed ${
+                      msg.sender === 'user'
+                        ? 'bg-gradient-to-r from-accent to-accent-hover text-white font-medium shadow-md rounded-br-xs'
+                        : 'bg-bg-surface border border-border-subtle text-text-primary shadow-xs rounded-bl-xs'
+                    }`}
+                  >
+                    <p className="whitespace-pre-line">{msg.text}</p>
+                  </div>
+                </div>
+              ))}
+
+              {loading && (
+                <div className="flex items-center gap-2 justify-start">
+                  <div className="w-6 h-6 rounded-full bg-accent/15 border border-accent/30 text-[10px] font-black text-accent flex items-center justify-center shrink-0">
+                    Z
+                  </div>
+                  <div className="bg-bg-surface border border-border-subtle px-4 py-2.5 rounded-2xl rounded-bl-xs flex items-center gap-1.5 shadow-xs">
+                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+              )}
+
+              {errorMsg && (
+                <div className="p-3 rounded-xl text-xs border border-rose-500/20 bg-rose-500/10 text-rose-400 font-sans font-medium">
+                  {errorMsg}
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Suggested Quick Prompts */}
+            <div className="px-3.5 py-2 border-t border-border-subtle bg-bg-surface/70 flex gap-1.5 overflow-x-auto no-scrollbar">
               {quickPrompts.map((prompt, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSend(prompt)}
-                  className="text-xs px-2.5 py-1.5 rounded-full border border-card-border bg-card/50 hover:bg-accent/10 hover:border-accent transition-colors text-left cursor-pointer"
+                  disabled={loading}
+                  className="whitespace-nowrap px-3 py-1 rounded-full text-[11px] font-sans font-medium border border-border-subtle text-text-secondary hover:text-text-primary hover:border-accent hover:bg-bg-elevated transition-colors cursor-pointer shrink-0 disabled:opacity-40"
                 >
                   {prompt}
                 </button>
               ))}
             </div>
-          )}
 
-          {/* Input Panel */}
-          <div className="p-3 border-t border-card-border bg-card flex gap-2 items-center">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyPress}
-              disabled={loading}
-              placeholder="Ask a question..."
-              className="flex-1 px-4 py-2.5 rounded-xl bg-background/50 border border-card-border focus:border-accent focus:ring-1 focus:ring-accent outline-none text-sm transition-all disabled:opacity-60"
-            />
-            <button
-              onClick={() => handleSend()}
-              disabled={loading || !inputValue.trim()}
-              className="p-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </button>
+            {/* Input Terminal */}
+            <div className="p-3 sm:p-3.5 border-t border-border-subtle bg-bg-surface flex items-center gap-2">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyPress}
+                placeholder="Ask ZAZA anything..."
+                disabled={loading}
+                className="flex-1 px-3.5 py-2.5 rounded-xl bg-bg-elevated border border-border-subtle text-sm sm:text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent transition-colors font-sans"
+              />
+              <button
+                onClick={() => handleSend()}
+                disabled={loading || !inputValue.trim()}
+                className="p-2.5 rounded-xl bg-accent text-white hover:bg-accent-hover transition-all cursor-pointer disabled:opacity-40 shadow-sm shrink-0"
+                aria-label="Send message to ZAZA"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }

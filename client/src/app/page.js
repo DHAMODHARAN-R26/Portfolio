@@ -1,8 +1,9 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
 import { apiFetch, getUploadUrl } from '../lib/api';
 import { getSocket } from '../lib/socket';
+import Navbar from '../components/Navbar';
+import TechnologyLogo from '../components/TechnologyLogo';
 import AIOfflineIndicator from '../components/AIOfflineIndicator';
 import ContactForm from '../components/ContactForm';
 import AIChatbotWidget from '../components/AIChatbotWidget';
@@ -23,28 +24,29 @@ export default function Home() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedExperience, setSelectedExperience] = useState(null);
   const [selectedEducation, setSelectedEducation] = useState(null);
   const [selectedCertification, setSelectedCertification] = useState(null);
   const [selectedAchievement, setSelectedAchievement] = useState(null);
   const [lightboxImage, setLightboxImage] = useState(null);
+
   const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined') return true;
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     return savedTheme === 'dark' || (!savedTheme && prefersDark);
   });
 
-  // Sync the DOM class with initial darkMode state (no setState needed)
+  // Sync DOM with theme
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [darkMode]);
 
   const toggleTheme = () => {
     const newDark = !darkMode;
@@ -79,16 +81,14 @@ export default function Home() {
     }
   }, []);
 
-  // Fetch portfolio data and setup Socket.io
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- data fetching on mount is a legitimate pattern
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- data fetching on mount
     fetchPortfolioData();
 
     const socket = getSocket();
     if (socket) {
       socket.connect();
-      socket.on('portfolio_updated', (event) => {
-        console.log('Real-time updates received:', event);
+      socket.on('portfolio_updated', () => {
         fetchPortfolioData();
       });
     }
@@ -103,26 +103,28 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center min-h-screen bg-background text-foreground space-y-4">
-        <svg className="animate-spin h-10 w-10 text-accent" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-        </svg>
-        <p className="text-sm font-semibold tracking-wider opacity-85">Loading Portfolio Context...</p>
+      <div className="flex-1 flex flex-col items-center justify-center min-h-screen bg-bg-main text-text-primary space-y-4">
+        <div className="relative w-12 h-12 flex items-center justify-center">
+          <div className="absolute inset-0 rounded-full border-2 border-accent/20 border-t-accent animate-spin" />
+          <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+        </div>
+        <p className="tech-badge animate-pulse">LOADING PORTFOLIO...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex-grow flex flex-col items-center justify-center p-6 bg-background text-foreground min-h-screen">
-        <div className="max-w-md w-full p-6 text-center rounded-2xl glass-panel border border-rose-500/20">
-          <div className="w-12 h-12 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-4 text-xl">⚠️</div>
-          <h2 className="text-lg font-bold mb-2 font-display">Server Connection Error</h2>
-          <p className="text-sm text-foreground/75 mb-6">{error}</p>
+      <div className="flex-grow flex flex-col items-center justify-center p-6 bg-bg-main text-text-primary min-h-screen">
+        <div className="max-w-md w-full p-8 text-center glass-panel bento-card space-y-4">
+          <div className="w-10 h-10 mx-auto rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center font-sans font-bold">
+            ⚠
+          </div>
+          <h2 className="text-base font-bold text-text-primary">Connection Error</h2>
+          <p className="text-xs text-text-secondary leading-relaxed">{error}</p>
           <button
             onClick={() => { setLoading(true); fetchPortfolioData(); }}
-            className="px-5 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors cursor-pointer"
+            className="btn-primary text-xs py-2 px-5 w-full justify-center"
           >
             Retry Connection
           </button>
@@ -132,113 +134,129 @@ export default function Home() {
   }
 
   const { profile, skills, projects, achievements, experience, education, certifications } = portfolio;
-  
-  // Group skills by category
-  const skillsByCategory = (skills || []).reduce((acc, skill) => {
-    const cat = skill.category || 'Other';
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(skill);
-    return acc;
-  }, {});
+
+  // Extract unique categories from skills
+  const categories = ['All', ...Array.from(new Set((skills || []).map((s) => s.category || 'General')))];
+
+  const filteredSkills = selectedCategory === 'All'
+    ? skills
+    : (skills || []).filter((s) => (s.category || 'General') === selectedCategory);
+
+  // Separate flagship project from other projects for a perfectly balanced layout
+  const flagshipProject = projects && projects.length > 0 ? projects[0] : null;
+  const gridProjects = projects && projects.length > 1 ? projects.slice(1) : [];
 
   return (
-    <div className="min-h-screen flex flex-col grid-backdrop relative overflow-hidden">
-      {/* Background Ambient Glow Blobs for Glassmorphism */}
-      <div className="glow-blob top-[10%] left-[5%] w-72 h-72 bg-accent/30" />
-      <div className="glow-blob top-[35%] right-[5%] w-96 h-96 bg-purple-500/20" />
-      <div className="glow-blob top-[60%] left-[10%] w-80 h-80 bg-fuchsia-500/20" />
-      <div className="glow-blob bottom-[10%] right-[10%] w-96 h-96 bg-accent/20" />
+    <div className="min-h-screen flex flex-col bg-bg-main text-text-primary selection:bg-accent/30 selection:text-white relative bg-grid-pattern">
+      {/* Ambient Lighting Cones */}
+      <div className="ambient-glow-top" />
+      <div className="ambient-glow-mid" />
 
       <AIOfflineIndicator />
 
-      {/* Header Navigation */}
-      <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur-xl border-b border-card-border/50 shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="#" className="text-xl font-bold tracking-tight text-accent font-display">
-            {profile?.name || 'Developer'}.
-          </a>
-          <nav className="hidden md:flex items-center gap-5 text-xs font-bold uppercase tracking-wider text-foreground/80">
-            <a href="#about" className="hover:text-accent transition-colors">About</a>
-            <a href="#skills" className="hover:text-accent transition-colors">Skills</a>
-            <a href="#experience" className="hover:text-accent transition-colors">Experience</a>
-            <a href="#education" className="hover:text-accent transition-colors">Education</a>
-            <a href="#projects" className="hover:text-accent transition-colors">Projects</a>
-            <a href="#certifications" className="hover:text-accent transition-colors">Certifications</a>
-            <a href="#achievements" className="hover:text-accent transition-colors">Achievements</a>
-            <a href="#contact" className="hover:text-accent transition-colors">Contact</a>
-          </nav>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={toggleTheme}
-              className="p-2.5 rounded-xl hover:bg-card-border/30 border border-card-border text-foreground transition-all cursor-pointer"
-              aria-label="Toggle dark/light theme"
-            >
-              {darkMode ? (
-                <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364-3.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707m2.828 9.9a5 5 0 117.070 0l-7.07 7.07z" />
-                </svg>
-              ) : (
-                <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-              )}
-            </button>
-            <a
-              href="#contact"
-              className="hidden sm:inline-flex px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl bg-accent text-white hover:bg-accent-hover transition-colors shadow-md shadow-accent/15"
-            >
-              Hire Me
-            </a>
-          </div>
-        </div>
-      </header>
+      {/* Floating Precision Navigation */}
+      <Navbar
+        profileName={profile?.name}
+        darkMode={darkMode}
+        toggleTheme={toggleTheme}
+      />
 
-      {/* Main Content Sections */}
-      <main className="max-w-6xl mx-auto px-6 py-12 md:py-20 flex-grow space-y-24 md:space-y-36">
-        
-        {/* HERO SECTION */}
-        <section id="about" className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-center">
-          <div className="md:col-span-7 space-y-6 text-center md:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/15 text-accent text-xs font-medium uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
-              <span>Available for Freelance & Contract</span>
+      {/* Main Experience Stream */}
+      <main className="max-w-[1400px] mx-auto px-3.5 xs:px-5 sm:px-8 lg:px-12 xl:px-14 pt-24 xs:pt-28 sm:pt-32 md:pt-40 pb-16 xs:pb-20 sm:pb-24 md:pb-32 flex-grow space-y-16 xs:space-y-20 sm:space-y-24 md:space-y-32 lg:space-y-36 relative z-10 w-full overflow-x-hidden">
+
+        {/* ======================================================== */}
+        {/* 1. HERO SECTION — PROFESSIONAL EDITORIAL SHOWCASE        */}
+        {/* ======================================================== */}
+        <section id="about" className="grid grid-cols-1 lg:grid-cols-12 gap-8 xs:gap-10 lg:gap-14 xl:gap-16 items-center min-h-[calc(100vh-140px)] scroll-mt-28 py-4 xs:py-6 lg:py-12">
+
+          {/* Left Editorial Narrative */}
+          <div className="lg:col-span-7 space-y-4 xs:space-y-5 sm:space-y-6 text-left">
+            {/* Status Pill */}
+            <div className="inline-flex items-center gap-2 xs:gap-2.5 px-3 xs:px-3.5 py-1.5 rounded-full border border-accent/20 bg-accent/5 text-[11px] xs:text-xs font-sans text-accent shadow-xs">
+              <span className="w-1.5 xs:w-2 h-1.5 xs:h-2 rounded-full bg-accent animate-pulse" />
+              <span className="font-semibold tracking-wider uppercase">Software Developer • CSE</span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight font-display">
-              Hi, I&apos;m <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-indigo-500">{profile?.name || 'Dhamodharan'}</span>
-            </h1>
-            <h2 className="text-xl md:text-2xl font-semibold opacity-90 tracking-wide font-display">
-              {profile?.title || 'Full-Stack AI Developer'}
-            </h2>
-            <p className="text-base md:text-lg leading-relaxed text-foreground/80 max-w-xl mx-auto md:mx-0">
-              {profile?.bio || 'I build intelligent web applications, integrating modern frontend designs with advanced backend and AI solutions.'}
+
+            {/* Oversized Typographic Statement with Responsive Fluid Clamp */}
+            <div className="space-y-1 sm:space-y-2">
+              <h1 className="text-[clamp(1.75rem,5.2vw+0.5rem,4.5rem)] font-black tracking-tight leading-[1.08] break-words">
+                Hi, I&apos;m <span className="gradient-heading">{profile?.name || 'DHAMODHARAN R'}</span>.
+                <br />
+                <span className="gradient-accent text-[clamp(1.25rem,3.6vw+0.3rem,3.25rem)] font-extrabold block mt-1.5 xs:mt-2 sm:mt-3">
+                  Building Intelligent Systems.
+                </span>
+              </h1>
+            </div>
+
+            {/* Narrative Bio */}
+            <p className="text-xs xs:text-sm sm:text-base lg:text-lg leading-relaxed text-text-secondary max-w-2xl font-normal">
+              {profile?.bio || 'I am a motivated Computer Science student learning Full Stack Development, with practical experience in IoT-based projects like smart monitoring systems. I build innovative solutions combining software and physical hardware to solve real-world challenges.'}
             </p>
-            
-            {/* Social Links & Resume Action */}
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
+
+            {/* Telemetry Highlight Chips — 2x2 Grid on Mobile, 4-col on Tablet & Desktop */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 pt-1 sm:pt-2">
+              <div className="p-2.5 xs:p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-border-subtle bg-bg-surface text-center shadow-xs">
+                <span className="font-sans font-black text-lg xs:text-xl sm:text-2xl text-accent block tracking-tight">
+                  {skills.length > 0 ? `${skills.length}+` : '35+'}
+                </span>
+                <span className="text-[9px] xs:text-[10px] sm:text-[11px] uppercase font-sans font-semibold tracking-wider text-text-muted mt-0.5 sm:mt-1 block">Tech & Skills</span>
+              </div>
+              <div className="p-2.5 xs:p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-border-subtle bg-bg-surface text-center shadow-xs">
+                <span className="font-sans font-black text-lg xs:text-xl sm:text-2xl text-sky-400 block tracking-tight">
+                  {projects.length > 0 ? `${projects.length}` : '9'}
+                </span>
+                <span className="text-[9px] xs:text-[10px] sm:text-[11px] uppercase font-sans font-semibold tracking-wider text-text-muted mt-0.5 sm:mt-1 block">Projects Built</span>
+              </div>
+              <div className="p-2.5 xs:p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-border-subtle bg-bg-surface text-center shadow-xs">
+                <span className="font-sans font-black text-lg xs:text-xl sm:text-2xl text-emerald-400 block tracking-tight">9.05</span>
+                <span className="text-[9px] xs:text-[10px] sm:text-[11px] uppercase font-sans font-semibold tracking-wider text-text-muted mt-0.5 sm:mt-1 block">B.Tech CGPA</span>
+              </div>
+              <div className="p-2.5 xs:p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-border-subtle bg-bg-surface text-center shadow-xs">
+                <span className="font-sans font-black text-lg xs:text-xl sm:text-2xl text-purple-400 block tracking-tight">
+                  {achievements.length > 0 ? `${achievements.length}` : '12'}
+                </span>
+                <span className="text-[9px] xs:text-[10px] sm:text-[11px] uppercase font-sans font-semibold tracking-wider text-text-muted mt-0.5 sm:mt-1 block">Hackathons & Wins</span>
+              </div>
+            </div>
+
+            {/* Quick Actions & Social Dock — Stacked on small mobile, row on tablet/desktop */}
+            <div className="flex flex-col xs:flex-row flex-wrap items-stretch xs:items-center gap-2.5 xs:gap-3 sm:gap-4 pt-1 sm:pt-2">
+              <a
+                href="#projects"
+                className="btn-primary text-xs xs:text-sm py-2.5 xs:py-3 px-5 sm:px-6 rounded-xl font-semibold shadow-md justify-center"
+              >
+                <span>View Projects</span>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </a>
+
               {profile?.resume && (
                 <a
                   href={getUploadUrl(profile.resume)}
                   download
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-6 py-3 rounded-xl bg-foreground text-background font-semibold hover:bg-foreground/90 transition-colors shadow-lg flex items-center gap-2 text-sm"
+                  className="btn-secondary text-xs xs:text-sm py-2.5 xs:py-3 px-5 sm:px-6 rounded-xl font-semibold justify-center"
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
-                  Download Resume
+                  <span>Download Resume</span>
                 </a>
               )}
-              <div className="flex items-center gap-3">
+
+              {/* Connected Social Nodes */}
+              <div className="flex items-center gap-2 pt-2 xs:pt-0 justify-center xs:justify-start">
                 {profile?.github && (
                   <a
                     href={profile.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-3 rounded-xl border border-card-border hover:border-accent hover:text-accent transition-colors bg-card"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-border-subtle bg-bg-surface flex items-center justify-center text-text-secondary hover:text-text-primary hover:border-accent hover:scale-105 transition-all shadow-sm"
                     title="GitHub Profile"
                   >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="currentColor" viewBox="0 0 24 24">
                       <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
                     </svg>
                   </a>
@@ -248,10 +266,10 @@ export default function Home() {
                     href={profile.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-3 rounded-xl border border-card-border hover:border-accent hover:text-accent transition-colors bg-card"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-border-subtle bg-bg-surface flex items-center justify-center text-text-secondary hover:text-text-primary hover:border-accent hover:scale-105 transition-all shadow-sm"
                     title="LinkedIn Profile"
                   >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="currentColor" viewBox="0 0 24 24">
                       <path fillRule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clipRule="evenodd" />
                     </svg>
                   </a>
@@ -259,10 +277,10 @@ export default function Home() {
                 {profile?.email && (
                   <a
                     href={`mailto:${profile.email}`}
-                    className="p-3 rounded-xl border border-card-border hover:border-accent hover:text-accent transition-colors bg-card"
-                    title="Send Email"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-border-subtle bg-bg-surface flex items-center justify-center text-text-secondary hover:text-text-primary hover:border-accent hover:scale-105 transition-all shadow-sm"
+                    title="Email Direct"
                   >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </a>
@@ -270,519 +288,665 @@ export default function Home() {
               </div>
             </div>
           </div>
-          
-          {/* Avatar Graphic */}
-          <div className="md:col-span-5 flex justify-center">
-            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full flex items-center justify-center p-2 border-4 border-white dark:border-[#3a1d5c] bg-white dark:bg-[#1a0b2e] shadow-2xl animate-float">
-              {profile?.image ? (
-                <div className="relative w-full h-full rounded-full overflow-hidden bg-white dark:bg-black/50 border border-black/5 dark:border-white/10">
+
+          {/* Right Professional Developer Dossier Card — Intelligently Centered on Mobile/Tablet */}
+          <div className="lg:col-span-5 flex justify-center lg:justify-end w-full">
+            <div className="w-full max-w-sm sm:max-w-md lg:max-w-md xl:max-w-lg glass-panel p-4 xs:p-5 sm:p-6 lg:p-7 space-y-3.5 xs:space-y-4 sm:space-y-5 rounded-2xl sm:rounded-3xl shadow-2xl border border-border-subtle bg-bg-surface/90 mx-auto lg:mr-0">
+
+              {/* Profile Image with Proportional Aspect Ratio */}
+              <div className="relative aspect-[4/4.5] w-full max-h-[340px] xs:max-h-[420px] sm:max-h-[500px] rounded-xl sm:rounded-2xl overflow-hidden border border-border-subtle bg-bg-elevated group">
+                {profile?.image ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img
                     src={getUploadUrl(profile.image)}
-                    alt={profile.name || "Profile"}
-                    className="w-full h-full object-cover"
+                    alt={profile.name || "Dhamodharan R"}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-4xl sm:text-5xl text-text-muted gap-2">
+                    <span>👨‍💻</span>
+                    <span className="font-sans text-xs sm:text-sm font-medium text-text-muted">Dhamodharan R</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Developer Metadata */}
+              <div className="space-y-2 border-t border-border-subtle pt-3 sm:pt-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-sm xs:text-base sm:text-lg text-text-primary font-sans truncate">{profile?.name || 'DHAMODHARAN R'}</h3>
+                    <p className="text-[11px] xs:text-xs sm:text-sm text-accent font-semibold font-sans truncate">{profile?.title || 'SOFTWARE DEVELOPER & AI/ML ENGINEER'}</p>
+                  </div>
+                  <span className="font-sans font-semibold text-[10px] sm:text-xs text-text-muted px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-bg-elevated border border-border-subtle shrink-0">
+                    CSE
+                  </span>
                 </div>
-              ) : (
-                <div className="w-full h-full rounded-full bg-gradient-to-tr from-accent to-indigo-600/30 flex items-center justify-center text-8xl shadow-md border border-card-border">
-                  💻
+
+                <div className="space-y-1.5 font-sans text-[11px] xs:text-xs sm:text-sm pt-0.5">
+                  <div className="flex items-center justify-between text-text-secondary gap-2">
+                    <span className="text-text-muted font-medium shrink-0">FOCUS:</span>
+                    <span className="text-text-primary font-medium truncate">Software Dev, AI/ML & IoT</span>
+                  </div>
+                  <div className="flex items-center justify-between text-text-secondary gap-2">
+                    <span className="text-text-muted font-medium shrink-0">LOCATION:</span>
+                    <span className="text-text-primary font-medium truncate">{profile?.location || 'Pondicherry, India'}</span>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* SKILLS SECTION */}
-        <section id="skills" className="space-y-10 scroll-mt-24">
-          <div className="text-center space-y-2 max-w-md mx-auto">
-            <h2 className="text-3xl font-extrabold tracking-tight font-display">Technical Expertise</h2>
-            <p className="text-sm text-foreground/75 leading-relaxed">
-              A comprehensive view of languages, frameworks, and database architectures I actively utilize.
-            </p>
+        {/* ======================================================== */}
+        {/* 2. CORE ARCHITECTURAL PILLARS & TECH MATRIX              */}
+        {/* ======================================================== */}
+        <section id="skills" className="space-y-6 sm:space-y-8 lg:space-y-10 scroll-mt-28">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 xs:gap-4">
+            <div>
+              <span className="tech-badge">TECHNICAL EXPERTISE</span>
+              <h2 className="text-2xl xs:text-3xl sm:text-4xl font-black tracking-tight text-text-primary mt-2">
+                Engineering Stack & Capabilities
+              </h2>
+              <p className="text-xs sm:text-sm text-text-secondary mt-1">
+                Authentic toolchains, languages, and frameworks applied across software and physical systems.
+              </p>
+            </div>
+
+            {/* Category Filter Pills — Fluid wrapping & touch-friendly */}
+            <div className="flex flex-wrap gap-1 xs:gap-1.5 p-1 xs:p-1.5 rounded-xl bg-bg-surface border border-border-subtle shadow-xs self-start md:self-auto max-w-full">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-2.5 xs:px-3 sm:px-3.5 py-1 xs:py-1.5 rounded-lg text-[11px] xs:text-xs font-semibold transition-all cursor-pointer ${selectedCategory === cat
+                    ? 'bg-accent text-white shadow-sm'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-bg-elevated'
+                    }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {Object.keys(skillsByCategory).length > 0 ? (
-              Object.entries(skillsByCategory).map(([category, items]) => (
-                <div key={category} className="p-6 rounded-2xl glass-panel space-y-6">
-                  <h3 className="text-base font-bold text-accent uppercase tracking-wider font-display border-b border-card-border pb-2.5">
-                    {category}
-                  </h3>
-                  <div className="space-y-5">
-                    {items.map((skill) => (
-                      <div key={skill._id || skill.id} className="space-y-2">
-                        <div className="flex items-center justify-between text-sm font-medium">
-                          <span>{skill.name}</span>
-                          <span className="opacity-80 text-xs">{skill.percentage}%</span>
-                        </div>
-                        <div className="w-full h-2 rounded-full bg-card-border/30 overflow-hidden">
-                          <div
-                            className="h-full bg-accent rounded-full transition-all duration-1000 ease-out"
-                            style={{ width: `${skill.percentage}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
+          {/* 3 Core Pillar Showcase Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+            <div className="bento-card p-4 xs:p-5 sm:p-6 lg:p-7 space-y-3 sm:space-y-3.5 bg-gradient-to-b from-bg-surface to-bg-elevated/40">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+                <span className="font-mono text-sm sm:text-base font-bold">&lt;/&gt;</span>
+              </div>
+              <h3 className="text-sm xs:text-base sm:text-lg font-bold text-text-primary">Low-Level & DSA Architecture</h3>
+              <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
+                Strong foundations in C, C++, Java, and Data Structures. Focused on time-space optimization, algorithm design, and computational efficiency.
+              </p>
+              <div className="flex flex-wrap gap-1 xs:gap-1.5 pt-1">
+                <span className="px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-md text-[10px] xs:text-[11px] font-sans font-medium bg-bg-surface border border-border-subtle text-text-secondary">C</span>
+                <span className="px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-md text-[10px] xs:text-[11px] font-sans font-medium bg-bg-surface border border-border-subtle text-text-secondary">C++</span>
+                <span className="px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-md text-[10px] xs:text-[11px] font-sans font-medium bg-bg-surface border border-border-subtle text-text-secondary">Java</span>
+                <span className="px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-md text-[10px] xs:text-[11px] font-sans font-medium bg-bg-surface border border-border-subtle text-text-secondary">DSA</span>
+              </div>
+            </div>
+
+            <div className="bento-card p-4 xs:p-5 sm:p-6 lg:p-7 space-y-3 sm:space-y-3.5 bg-gradient-to-b from-bg-surface to-bg-elevated/40">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                <span className="font-sans text-sm sm:text-base font-bold">🧠</span>
+              </div>
+              <h3 className="text-sm xs:text-base sm:text-lg font-bold text-text-primary">AI/ML & Software Engineering</h3>
+              <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
+                Applied Machine Learning algorithms, data science with Pandas & NumPy, predictive modeling, and responsive database-backed software systems.
+              </p>
+              <div className="flex flex-wrap gap-1 xs:gap-1.5 pt-1">
+                <span className="px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-md text-[10px] xs:text-[11px] font-sans font-medium bg-bg-surface border border-border-subtle text-text-secondary">Python</span>
+                <span className="px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-md text-[10px] xs:text-[11px] font-sans font-medium bg-bg-surface border border-border-subtle text-text-secondary">Pandas</span>
+                <span className="px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-md text-[10px] xs:text-[11px] font-sans font-medium bg-bg-surface border border-border-subtle text-text-secondary">NumPy</span>
+                <span className="px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-md text-[10px] xs:text-[11px] font-sans font-medium bg-bg-surface border border-border-subtle text-text-secondary">MySQL</span>
+              </div>
+            </div>
+
+            <div className="bento-card p-4 xs:p-5 sm:p-6 lg:p-7 space-y-3 sm:space-y-3.5 bg-gradient-to-b from-bg-surface to-bg-elevated/40">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500">
+                <span className="font-sans text-sm sm:text-base font-bold">📡</span>
+              </div>
+              <h3 className="text-sm xs:text-base sm:text-lg font-bold text-text-primary">Cyber-Physical & IoT Systems</h3>
+              <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
+                Connecting physical hardware with software logic. Practical telemetry implementations in vehicle safety, water cleaning, and attendance systems.
+              </p>
+              <div className="flex flex-wrap gap-1 xs:gap-1.5 pt-1">
+                <span className="px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-md text-[10px] xs:text-[11px] font-sans font-medium bg-bg-surface border border-border-subtle text-text-secondary">Microcontrollers</span>
+                <span className="px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-md text-[10px] xs:text-[11px] font-sans font-medium bg-bg-surface border border-border-subtle text-text-secondary">Sensors</span>
+                <span className="px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-md text-[10px] xs:text-[11px] font-sans font-medium bg-bg-surface border border-border-subtle text-text-secondary">Telemetry</span>
+                <span className="px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-md text-[10px] xs:text-[11px] font-sans font-medium bg-bg-surface border border-border-subtle text-text-secondary">Automation</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Technology Matrix with Mobile-to-Desktop Adaptive Grid */}
+          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 xs:gap-3 sm:gap-4">
+            {filteredSkills.length > 0 ? (
+              filteredSkills.map((skill) => (
+                <div
+                  key={skill._id || skill.id}
+                  className="skill-card group cursor-default p-2.5 xs:p-3 sm:p-4"
+                >
+                  <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-11 sm:h-11 flex items-center justify-center mb-2 sm:mb-3 transition-transform duration-300 group-hover:scale-125">
+                    <TechnologyLogo name={skill.name} className="w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9" />
                   </div>
+                  <h4 className="text-[11px] xs:text-xs font-bold text-text-primary tracking-tight group-hover:text-accent transition-colors font-sans truncate w-full text-center">
+                    {skill.name}
+                  </h4>
+                  <span className="font-sans text-[10px] xs:text-[11px] text-text-muted mt-0.5 font-medium truncate w-full text-center">
+                    {skill.category || 'Technology'}
+                  </span>
+
+                  {/* Subtle Proficiency Bar */}
+                  {skill.percentage && (
+                    <div className="w-full mt-2 sm:mt-3 bg-bg-elevated rounded-full h-1 overflow-hidden border border-border-subtle">
+                      <div
+                        className="bg-gradient-to-r from-accent to-accent-secondary h-full rounded-full transition-all duration-500"
+                        style={{ width: `${skill.percentage}%` }}
+                      />
+                    </div>
+                  )}
                 </div>
               ))
             ) : (
-              <p className="text-center md:col-span-3 text-sm text-foreground/60 py-10">No skills added yet.</p>
+              <p className="text-xs text-text-muted font-sans col-span-full py-8 text-center font-medium">
+                No technologies found in category: {selectedCategory}
+              </p>
             )}
           </div>
         </section>
 
-        {/* PROJECTS SECTION */}
-        <section id="projects" className="space-y-10 scroll-mt-24">
-          <div className="text-center space-y-2 max-w-md mx-auto">
-            <h2 className="text-3xl font-extrabold tracking-tight font-display">Featured Projects</h2>
-            <p className="text-sm text-foreground/75 leading-relaxed">
-              Explore custom systems merging advanced client capabilities with server services and AI APIs.
+        {/* ======================================================== */}
+        {/* 3. SELECTED WORKS — BALANCED EDITORIAL GALLERY            */}
+        {/* ======================================================== */}
+        <section id="projects" className="space-y-6 sm:space-y-8 scroll-mt-28">
+          <div>
+            <span className="tech-badge">PROJECT ARCHITECTURES</span>
+            <h2 className="text-2xl xs:text-3xl sm:text-4xl font-black tracking-tight text-text-primary mt-2">
+              Featured Projects & Systems
+            </h2>
+            <p className="text-xs sm:text-sm text-text-secondary mt-1">
+              Handcrafted IoT architectures, software platforms, and department utilities.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {projects.length > 0 ? (
-              projects.map((proj) => (
-                <div 
-                  key={proj._id || proj.id} 
-                  className="flex flex-col rounded-2xl glass-card overflow-hidden cursor-pointer group"
-                  onClick={() => setSelectedProject(proj)}
-                >
-                  <div className="h-48 bg-gradient-to-br from-accent/20 to-indigo-500/20 border-b border-card-border flex items-center justify-center overflow-hidden relative">
-                    {proj.imageUrls?.[0] || proj.imageUrl ? (
-                      <img
-                        src={getUploadUrl(proj.imageUrls?.[0] || proj.imageUrl)}
-                        alt={proj.title}
-                        loading="lazy"
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <div className="text-center p-6 space-y-2 flex flex-col items-center">
-                        <span className="text-5xl opacity-60 transition-transform duration-500 group-hover:scale-110">🚀</span>
-                        <div className="text-xs font-semibold text-accent/80 tracking-wider uppercase font-display">{proj.title}</div>
-                      </div>
-                    )}
+          <div className="space-y-4 xs:space-y-6 lg:space-y-8">
+
+            {/* FLAGSHIP HERO PROJECT FEATURE */}
+            {flagshipProject && (
+              <div
+                onClick={() => setSelectedProject(flagshipProject)}
+                className="bento-card p-4 xs:p-6 sm:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-12 gap-5 xs:gap-6 lg:gap-10 xl:gap-12 items-center cursor-pointer group bg-gradient-to-br from-bg-surface via-bg-surface to-accent/5"
+              >
+                {/* Media Showcase */}
+                <div className="lg:col-span-6 h-48 xs:h-60 sm:h-80 lg:h-[380px] rounded-xl sm:rounded-2xl overflow-hidden border border-border-subtle bg-bg-elevated relative group-hover:border-accent/40 transition-all">
+                  {flagshipProject.imageUrls?.[0] || flagshipProject.imageUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={getUploadUrl(flagshipProject.imageUrls?.[0] || flagshipProject.imageUrl)}
+                      alt={flagshipProject.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-text-muted text-xs xs:text-sm font-sans space-y-2">
+                      <span className="text-3xl xs:text-4xl">🛰️</span>
+                      <span className="font-semibold tracking-wider text-[11px] xs:text-xs">SYS-01 // FLAGSHIP ARCHITECTURE</span>
+                    </div>
+                  )}
+                  <div className="absolute top-2.5 left-2.5 xs:top-3 xs:left-3 px-2 xs:px-2.5 py-0.5 xs:py-1 rounded-md bg-bg-main/80 backdrop-blur-md border border-white/10 font-sans text-[9px] xs:text-[10px] text-accent font-bold uppercase tracking-wider">
+                    FLAGSHIP SYSTEM
                   </div>
-                  <div className="p-6 flex-1 flex flex-col justify-between space-y-6">
+                </div>
+
+                {/* Narrative & Details */}
+                <div className="lg:col-span-6 space-y-3 xs:space-y-4">
+                  <div className="flex items-center gap-2">
+                    <span className="font-sans text-[11px] xs:text-xs text-accent font-bold">SYS-01</span>
+                    <span className="text-text-muted">•</span>
+                    <span className="text-[11px] xs:text-xs text-emerald-500 font-sans font-semibold">IoT & Embedded Architecture</span>
+                  </div>
+
+                  <h3 className="text-xl xs:text-2xl sm:text-3xl font-black text-text-primary group-hover:text-accent transition-colors">
+                    {flagshipProject.title}
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-text-secondary leading-relaxed line-clamp-3 xs:line-clamp-4">
+                    {flagshipProject.description}
+                  </p>
+
+                  {/* Tech Stack Badges */}
+                  <div className="flex flex-wrap gap-1 xs:gap-1.5 pt-1">
+                    {flagshipProject.techStack?.map((tech, tIdx) => (
+                      <span key={tIdx} className="px-2 xs:px-2.5 py-0.5 xs:py-1 text-[10px] xs:text-[11px] font-sans rounded-md bg-bg-elevated border border-border-subtle text-text-secondary font-medium uppercase">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Direct Actions */}
+                  <div className="flex flex-wrap items-center gap-3 xs:gap-4 pt-2 text-xs font-semibold">
+                    {flagshipProject.githubUrl && (
+                      <a
+                        href={flagshipProject.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-text-primary hover:text-accent flex items-center gap-1.5 transition-colors font-sans"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" /></svg>
+                        <span>Source Code</span>
+                      </a>
+                    )}
+                    {flagshipProject.demoUrl && (
+                      <a
+                        href={flagshipProject.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-accent hover:underline flex items-center gap-1 transition-colors font-sans"
+                      >
+                        <span>Live Experience</span>
+                        <span>↗</span>
+                      </a>
+                    )}
+                    <span className="text-xs text-text-muted group-hover:text-text-primary transition-colors ml-auto flex items-center gap-1 font-sans font-semibold">
+                      <span>VIEW DETAILS</span>
+                      <span>→</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* BALANCED 2-COLUMN PROJECT GRID (SYMMETRICAL ALIGNMENT) */}
+            {gridProjects.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                {gridProjects.map((proj, idx) => (
+                  <div
+                    key={proj._id || proj.id}
+                    onClick={() => setSelectedProject(proj)}
+                    className="bento-card p-4 xs:p-5 sm:p-7 space-y-3.5 xs:space-y-4 cursor-pointer group flex flex-col justify-between"
+                  >
                     <div className="space-y-3">
-                      <h3 className="text-lg font-bold font-display">{proj.title}</h3>
-                      <p className="text-sm text-foreground/75 leading-relaxed">{proj.description}</p>
-                      
-                      {/* Tech Stack */}
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {proj.techStack?.map((tech, idx) => (
-                          <span key={idx} className="px-2.5 py-1 text-[11px] font-semibold tracking-wider rounded-lg bg-card-border/30 border border-card-border text-foreground/85 uppercase">
+                      {/* Thumbnail */}
+                      <div className="h-40 xs:h-48 rounded-xl overflow-hidden border border-border-subtle bg-bg-elevated relative">
+                        {proj.imageUrls?.[0] || proj.imageUrl ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={getUploadUrl(proj.imageUrls?.[0] || proj.imageUrl)}
+                            alt={proj.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-text-muted text-xs font-sans font-semibold">
+                            <span>SYS-0{idx + 2}</span>
+                          </div>
+                        )}
+                        <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded bg-bg-main/80 backdrop-blur-md border border-white/10 font-sans text-[9px] text-text-muted font-medium">
+                          SYS-0{idx + 2}
+                        </span>
+                      </div>
+
+                      {/* Content */}
+                      <div>
+                        <h3 className="text-base xs:text-lg font-bold text-text-primary group-hover:text-accent transition-colors">
+                          {proj.title}
+                        </h3>
+                        <p className="text-xs text-text-secondary leading-relaxed line-clamp-3 mt-1.5">
+                          {proj.description}
+                        </p>
+                      </div>
+
+                      {/* Badges */}
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {proj.techStack?.map((tech, tIdx) => (
+                          <span key={tIdx} className="px-2 py-0.5 text-[10px] font-sans font-medium rounded bg-bg-elevated border border-border-subtle text-text-secondary uppercase">
                             {tech}
                           </span>
                         ))}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 text-xs font-semibold pt-2">
-                      {proj.githubUrl && (
-                        <a
-                          href={proj.githubUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 hover:text-accent transition-colors"
-                        >
-                          <svg className="w-4.5 h-4.5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-                          </svg>
-                          Code
-                        </a>
-                      )}
-                      {proj.demoUrl && (
-                        <a
-                          href={proj.demoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 hover:text-accent transition-colors"
-                        >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                          Live Demo
-                        </a>
-                      )}
+                    <div className="flex items-center justify-between pt-3 border-t border-border-subtle text-xs">
+                      <span className="font-sans font-semibold text-xs text-accent">INSPECT ARCHITECTURE</span>
+                      <span className="text-text-muted group-hover:text-text-primary group-hover:translate-x-1 transition-transform">→</span>
                     </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-center md:col-span-2 text-sm text-foreground/60 py-10">No projects added yet.</p>
+                ))}
+              </div>
             )}
           </div>
         </section>
 
-        {/* WORK EXPERIENCE */}
-        <section id="experience" className="space-y-10 scroll-mt-24">
-          <div className="text-center space-y-2 max-w-md mx-auto">
-            <h2 className="text-3xl font-extrabold tracking-tight font-display">Work Experience</h2>
-            <p className="text-sm text-foreground/75 leading-relaxed">
-              Internships, contract roles, and professional employment.
+        {/* ======================================================== */}
+        {/* 4. CAREER & ACADEMICS — BLUEPRINT ROADMAP                */}
+        {/* ======================================================== */}
+        <section id="experience" className="space-y-6 sm:space-y-8 scroll-mt-28">
+          <div>
+            <span className="tech-badge">CHRONOLOGY</span>
+            <h2 className="text-2xl xs:text-3xl sm:text-4xl font-black tracking-tight text-text-primary mt-2">
+              Career Experience & Education
+            </h2>
+            <p className="text-xs sm:text-sm text-text-secondary mt-1">
+              Academic progression and professional work milestones.
             </p>
           </div>
 
-          <div className="max-w-3xl mx-auto space-y-6">
-            {experience.length > 0 ? (
-              experience.map((exp) => (
-                <div 
-                  key={exp._id || exp.id} 
-                  className="p-6 rounded-2xl border border-card-border bg-card hover:bg-card-border/10 transition-all duration-300 shadow-sm flex flex-col sm:flex-row gap-5 items-start cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-accent/50 group"
-                  onClick={() => setSelectedExperience(exp)}
-                >
-                  {exp.imageUrls?.[0] || exp.imageUrl ? (
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-white/10 shrink-0 border border-card-border">
-                      <img src={getUploadUrl(exp.imageUrls?.[0] || exp.imageUrl)} alt={exp.company} className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <div className="w-16 h-16 rounded-xl bg-accent/15 border border-accent/20 text-accent flex items-center justify-center shrink-0 text-3xl font-display font-bold">
-                      💼
-                    </div>
-                  )}
-                  <div className="flex-1 space-y-2 w-full">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 w-full">
-                      <div>
-                        <h3 className="text-lg font-bold font-display">{exp.role}</h3>
-                        <p className="text-sm font-semibold opacity-85 text-accent">{exp.company}</p>
-                      </div>
-                      <span className="px-3 py-1 rounded-full bg-accent/10 border border-accent/15 text-accent text-xs font-semibold self-start sm:self-center">
-                        {exp.date}
-                      </span>
-                    </div>
-                    <p className="text-sm text-foreground/80 leading-relaxed pt-1 whitespace-pre-line line-clamp-3">{exp.description}</p>
-                    <div className="flex flex-wrap gap-4 pt-2">
-                      {exp.githubUrl && (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-                          Project Link
-                        </span>
-                      )}
-                      {exp.reportUrl && (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-500 hover:underline">
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                          </svg>
-                          Attached File
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-sm text-foreground/60 py-6">No experience listed.</p>
-            )}
-          </div>
-        </section>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 xs:gap-6 lg:gap-8 items-start">
 
-        {/* EDUCATION */}
-        <section id="education" className="space-y-10 scroll-mt-24">
-          <div className="text-center space-y-2 max-w-md mx-auto">
-            <h2 className="text-3xl font-extrabold tracking-tight font-display">Education</h2>
-            <p className="text-sm text-foreground/75 leading-relaxed">
-              Academic credentials and qualifications.
-            </p>
-          </div>
+            {/* Experience Track */}
+            <div className="space-y-3.5 xs:space-y-4 flex flex-col">
+              <div className="flex items-center gap-2 pb-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                <h3 className="text-xs sm:text-sm font-sans font-bold uppercase tracking-wider text-text-muted">Work Experience</h3>
+              </div>
 
-          <div className="max-w-3xl mx-auto space-y-6">
-            {education.length > 0 ? (
-              education.map((edu) => (
-                <div 
-                  key={edu._id || edu.id} 
-                  className="p-6 rounded-2xl border border-card-border bg-card hover:bg-card-border/10 transition-all duration-300 shadow-sm flex flex-col sm:flex-row gap-5 items-start cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-indigo-500/50 group"
-                  onClick={() => setSelectedEducation(edu)}
-                >
-                  {edu.imageUrls?.[0] || edu.imageUrl ? (
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-white/10 shrink-0 border border-card-border">
-                      <img src={getUploadUrl(edu.imageUrls?.[0] || edu.imageUrl)} alt={edu.institution} className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <div className="w-16 h-16 rounded-xl bg-indigo-500/15 border border-indigo-500/20 text-indigo-500 flex items-center justify-center shrink-0 text-3xl font-display font-bold">
-                      🎓
-                    </div>
-                  )}
-                  <div className="flex-1 space-y-2 w-full">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 w-full">
-                      <div>
-                        <h3 className="text-lg font-bold font-display">{edu.degree}</h3>
-                        <p className="text-sm font-semibold opacity-85 text-indigo-505 text-indigo-500">{edu.institution}</p>
-                      </div>
-                      <span className="px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/15 text-indigo-500 text-xs font-semibold self-start sm:self-center">
-                        {edu.date}
-                      </span>
-                    </div>
-                    <p className="text-sm text-foreground/80 leading-relaxed pt-1 whitespace-pre-line line-clamp-3">{edu.description}</p>
-                    <div className="flex flex-wrap gap-4 pt-2">
-                      {edu.githubUrl && (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-500 hover:underline">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-                          Academic Link
-                        </span>
-                      )}
-                      {edu.reportUrl && (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-500 hover:underline">
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                          </svg>
-                          Attached File
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-sm text-foreground/60 py-6">No education details listed.</p>
-            )}
-          </div>
-        </section>
-
-        {/* CERTIFICATIONS */}
-        <section id="certifications" className="space-y-10 scroll-mt-24">
-          <div className="text-center space-y-2 max-w-md mx-auto">
-            <h2 className="text-3xl font-extrabold tracking-tight font-display">Certifications</h2>
-            <p className="text-sm text-foreground/75 leading-relaxed">
-              Verifications of technical expertise and workshops.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {certifications.length > 0 ? (
-              certifications.map((cert) => (
-                <div 
-                  key={cert._id || cert.id} 
-                  className="p-6 rounded-2xl border border-card-border bg-card hover:bg-card-border/10 transition-all duration-300 shadow-sm flex gap-4 items-start cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-teal-500/50 group"
-                  onClick={() => setSelectedCertification(cert)}
-                >
-                  {cert.imageUrls?.[0] || cert.imageUrl ? (
-                    <div className="w-14 h-14 rounded-xl overflow-hidden bg-white/10 shrink-0 border border-card-border">
-                      <img src={getUploadUrl(cert.imageUrls?.[0] || cert.imageUrl)} alt={cert.title} className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <div className="w-14 h-14 rounded-xl bg-teal-500/15 border border-teal-500/20 text-teal-500 flex items-center justify-center shrink-0 text-2xl font-bold">
-                      🎖️
-                    </div>
-                  )}
-                  <div className="space-y-1.5 flex-1 min-w-0">
-                    <span className="text-[10px] font-bold text-teal-500 uppercase tracking-wider">{cert.date}</span>
-                    <h3 className="text-base font-bold font-display leading-tight truncate">{cert.title}</h3>
-                    <p className="text-xs font-semibold opacity-75">{cert.issuer}</p>
-                    {cert.description && (
-                      <p className="text-xs text-foreground/75 leading-relaxed pt-1.5 line-clamp-3">{cert.description}</p>
-                    )}
-                    <div className="flex flex-wrap gap-4 pt-2">
-                      {cert.githubUrl && (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-500 hover:underline">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-                          Credential Link
-                        </span>
-                      )}
-                      {cert.reportUrl && (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-500 hover:underline">
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                          </svg>
-                          Attached File
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-sm text-foreground/60 py-6 md:col-span-2">No certifications listed.</p>
-            )}
-          </div>
-        </section>
-
-        {/* ACHIEVEMENTS TIMELINE */}
-        <section id="achievements" className="space-y-10 scroll-mt-24">
-          <div className="text-center space-y-2 max-w-md mx-auto">
-            <h2 className="text-3xl font-extrabold tracking-tight font-display">Milestones & Achievements</h2>
-            <p className="text-sm text-foreground/75 leading-relaxed">
-              Timeline credentials, awards, hackathons, and certifications.
-            </p>
-          </div>
-
-          <div className="max-w-3xl mx-auto border-l-2 border-card-border/80 pl-6 space-y-10 relative">
-            {achievements.length > 0 ? (
-              achievements.map((ach) => (
-                <div key={ach._id || ach.id} className="relative space-y-2">
-                  <span className="absolute -left-[31px] top-1.5 block w-4.5 h-4.5 rounded-full bg-accent border-4 border-background" />
-                  
-                  <div 
-                    className="p-6 rounded-2xl border border-card-border bg-card space-y-3 shadow-sm hover:bg-card-border/10 transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-accent/50 group"
-                    onClick={() => setSelectedAchievement(ach)}
+              {experience.length > 0 ? (
+                experience.map((exp) => (
+                  <div
+                    key={exp._id || exp.id}
+                    onClick={() => setSelectedExperience(exp)}
+                    className="bento-card p-4 xs:p-5 sm:p-7 space-y-3 xs:space-y-3.5 cursor-pointer group flex flex-col justify-between"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 w-full">
-                      <div>
-                        <span className="text-xs font-bold text-accent tracking-wider uppercase">{ach.date || 'Award'}</span>
-                        <h3 className="text-base font-bold font-display">{ach.title}</h3>
-                        <p className="text-xs font-semibold opacity-75">{ach.issuer}</p>
+                    <div>
+                      <div className="flex flex-col xs:flex-row xs:items-start justify-between gap-1 xs:gap-3">
+                        <div className="min-w-0">
+                          <h4 className="text-sm xs:text-base sm:text-lg font-bold text-text-primary group-hover:text-accent transition-colors font-sans break-words">{exp.role}</h4>
+                          <p className="text-xs sm:text-sm text-accent font-semibold mt-0.5 font-sans truncate">{exp.company}</p>
+                        </div>
+                        <span className="text-[10px] xs:text-[10.5px] sm:text-xs font-sans font-medium text-text-muted shrink-0 self-start bg-bg-elevated px-2 xs:px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-md border border-border-subtle">
+                          {exp.date}
+                        </span>
                       </div>
-                      <div className="flex flex-wrap gap-4 items-center">
-                        {ach.githubUrl && (
-                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline self-start sm:self-center">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-                            Project Link
-                          </span>
-                        )}
-                        {ach.reportUrl && (
-                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-500 hover:underline self-start sm:self-center">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                            </svg>
-                            Attached File
-                          </span>
-                        )}
-                      </div>
+                      <p className="text-xs sm:text-sm text-text-secondary leading-relaxed line-clamp-3 xs:line-clamp-4 mt-2.5 sm:mt-3 font-sans">{exp.description}</p>
                     </div>
-                    {ach.description && (
-                      <p className="text-sm text-foreground/75 leading-relaxed pt-2 border-t border-card-border/30">{ach.description}</p>
-                    )}
-                    {(ach.imageUrls?.[0] || ach.imageUrl) && (
-                      <div className="w-full max-w-md h-48 rounded-xl overflow-hidden bg-white/5 border border-card-border relative mt-2">
-                        <img src={getUploadUrl(ach.imageUrls?.[0] || ach.imageUrl)} alt={ach.title} className="w-full h-full object-cover" />
-                      </div>
-                    )}
+                    <span className="text-xs font-sans font-semibold text-accent pt-3 border-t border-border-subtle block">VIEW RECORD DETAILS →</span>
                   </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-foreground/60 pl-2">No achievements added yet.</p>
-            )}
+                ))
+              ) : (
+                <p className="text-xs sm:text-sm text-text-muted font-sans p-4 border border-border-subtle rounded-xl">No work experience entries recorded.</p>
+              )}
+            </div>
+
+            {/* Education Track */}
+            <div id="education" className="space-y-3.5 xs:space-y-4 flex flex-col scroll-mt-28">
+              <div className="flex items-center gap-2 pb-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <h3 className="text-xs sm:text-sm font-sans font-bold uppercase tracking-wider text-text-muted">Academic Degrees</h3>
+              </div>
+
+              {education.length > 0 ? (
+                education.map((edu) => (
+                  <div
+                    key={edu._id || edu.id}
+                    onClick={() => setSelectedEducation(edu)}
+                    className="bento-card p-4 xs:p-5 sm:p-7 space-y-3 xs:space-y-3.5 cursor-pointer group flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex flex-col xs:flex-row xs:items-start justify-between gap-1 xs:gap-3">
+                        <div className="min-w-0">
+                          <h4 className="text-sm xs:text-base sm:text-lg font-bold text-text-primary group-hover:text-accent transition-colors font-sans break-words">{edu.degree}</h4>
+                          <p className="text-xs sm:text-sm text-accent font-semibold mt-0.5 font-sans truncate">{edu.institution}</p>
+                        </div>
+                        <span className="text-[10px] xs:text-[10.5px] sm:text-xs font-sans font-medium text-text-muted shrink-0 self-start bg-bg-elevated px-2 xs:px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-md border border-border-subtle">
+                          {edu.date}
+                        </span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-text-secondary leading-relaxed line-clamp-3 xs:line-clamp-4 mt-2.5 sm:mt-3 font-sans">{edu.description}</p>
+                    </div>
+                    <span className="text-xs font-sans font-semibold text-accent pt-3 border-t border-border-subtle block">VIEW ACADEMIC DETAILS →</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs sm:text-sm text-text-muted font-sans p-4 border border-border-subtle rounded-xl">No academic history recorded.</p>
+              )}
+            </div>
           </div>
         </section>
 
-        {/* RESUME ANALYZER */}
-        <section id="resume-analyzer" className="p-8 rounded-2xl glass-panel space-y-6 scroll-mt-24">
-          <div className="max-w-lg space-y-2">
-            <h2 className="text-2xl font-bold font-display tracking-tight">AI Resume Fit Analyzer</h2>
-            <p className="text-sm text-foreground/80 leading-relaxed">
-              Curious how your credentials compare to {profile?.name || 'Dhamodharan'}&apos;s level? Upload your resume to receive an automated analysis report and a list of key skills gaps.
+        {/* ======================================================== */}
+        {/* 5. CERTIFICATIONS — DEDICATED SEPARATE SESSION           */}
+        {/* ======================================================== */}
+        <section id="certifications" className="space-y-6 sm:space-y-8 scroll-mt-28">
+          <div>
+            <span className="tech-badge">QUALIFICATIONS</span>
+            <h2 className="text-2xl xs:text-3xl sm:text-4xl font-black tracking-tight text-text-primary mt-2">
+              Certifications & Qualifications
+            </h2>
+            <p className="text-xs sm:text-sm text-text-secondary mt-1">
+              Verified industry-recognized credentials and professional technical certifications.
             </p>
           </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
+            {certifications.map((cert) => (
+              <div
+                key={cert._id || cert.id}
+                onClick={() => setSelectedCertification(cert)}
+                className="bento-card p-3.5 xs:p-4 sm:p-5 flex gap-3 sm:gap-4.5 items-start cursor-pointer group hover:border-accent/40"
+              >
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 text-lg sm:text-xl text-blue-500">
+                  🎖️
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-sans text-[10px] xs:text-[11px] sm:text-xs font-medium text-text-muted">{cert.date}</span>
+                    <span className="text-[11px] xs:text-xs font-sans font-semibold text-accent group-hover:translate-x-0.5 transition-transform">Details →</span>
+                  </div>
+                  <h4 className="text-xs xs:text-sm sm:text-base font-bold text-text-primary truncate group-hover:text-accent transition-colors mt-0.5 font-sans">
+                    {cert.title}
+                  </h4>
+                  <p className="text-[11px] xs:text-xs sm:text-sm text-text-secondary mt-0.5 font-medium font-sans truncate">{cert.issuer}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ======================================================== */}
+        {/* 6. ACHIEVEMENTS — DEDICATED SEPARATE SESSION             */}
+        {/* ======================================================== */}
+        <section id="achievements" className="space-y-6 sm:space-y-8 scroll-mt-28">
+          <div>
+            <span className="tech-badge">HONORS & AWARDS</span>
+            <h2 className="text-2xl xs:text-3xl sm:text-4xl font-black tracking-tight text-text-primary mt-2">
+              Key Achievements & Milestones
+            </h2>
+            <p className="text-xs sm:text-sm text-text-secondary mt-1">
+              Hackathon selections, inter-college paper presentation wins, and project expo recognitions.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
+            {achievements.map((ach) => (
+              <div
+                key={ach._id || ach.id}
+                onClick={() => setSelectedAchievement(ach)}
+                className="bento-card p-3.5 xs:p-4 sm:p-5 flex gap-3 sm:gap-4.5 items-start cursor-pointer group hover:border-amber-500/40"
+              >
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 text-lg sm:text-xl text-amber-500">
+                  🏆
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-sans text-[10px] xs:text-[11px] sm:text-xs text-amber-500 font-semibold">{ach.date || 'Milestone'}</span>
+                    <span className="text-[11px] xs:text-xs font-sans font-semibold text-amber-500 group-hover:translate-x-0.5 transition-transform">Details →</span>
+                  </div>
+                  <h4 className="text-xs xs:text-sm sm:text-base font-bold text-text-primary truncate group-hover:text-amber-500 transition-colors mt-0.5 font-sans">
+                    {ach.title}
+                  </h4>
+                  <p className="text-[11px] xs:text-xs sm:text-sm text-text-secondary mt-0.5 font-medium font-sans truncate">{ach.issuer}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ======================================================== */}
+        {/* 7. AI RESUME FIT COMMAND STATION                         */}
+        {/* ======================================================== */}
+        <section id="resume-analyzer" className="bento-card p-4 xs:p-6 sm:p-10 lg:p-12 space-y-5 sm:space-y-8 scroll-mt-28 border-accent/20 bg-gradient-to-b from-bg-surface via-bg-surface to-accent/5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-border-subtle pb-5 sm:pb-6">
+            <div>
+              <span className="tech-badge">AI RECRUITMENT INTELLIGENCE & EVALUATION</span>
+              <h2 className="text-xl xs:text-2xl sm:text-3xl font-black tracking-tight text-text-primary mt-2">
+                Job Fit & Hireability Intelligence Suite
+              </h2>
+              <p className="text-xs sm:text-sm text-text-secondary mt-1 max-w-2xl leading-relaxed">
+                Assess job role hireability capability against verified profile data, run side-by-side candidate comparison, or conduct comprehensive ATS resume telemetry.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 font-sans text-[11px] sm:text-xs font-semibold text-emerald-500 bg-emerald-500/10 px-3 xs:px-3.5 py-1.5 rounded-full border border-emerald-500/20 self-start sm:self-auto shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>AI TELEMETRY READY</span>
+            </div>
+          </div>
+
           <ResumeAnalyzer />
         </section>
 
-        {/* CONTACT FORM */}
-        <section id="contact" className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 scroll-mt-24">
-          <div className="md:col-span-5 space-y-6">
-            <h2 className="text-3xl font-extrabold tracking-tight font-display">Let&apos;s Connect</h2>
-            <p className="text-sm text-foreground/75 leading-relaxed">
-              Have a contract, job query, or project idea? Submit your inquiry here, or reach out directly via email or social portals.
-            </p>
-            <div className="space-y-4 pt-4 text-sm font-medium">
+        {/* ======================================================== */}
+        {/* 8. GET IN TOUCH — COMMUNICATION CONSOLE                  */}
+        {/* ======================================================== */}
+        <section id="contact" className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 scroll-mt-28 items-start">
+
+          <div className="lg:col-span-5 space-y-5 sm:space-y-6">
+            <div>
+              <span className="tech-badge">DIRECT CHANNELS</span>
+              <h2 className="text-2xl xs:text-3xl sm:text-4xl font-black tracking-tight text-text-primary mt-2">
+                Let&apos;s Connect & Build
+              </h2>
+              <p className="text-xs sm:text-sm text-text-secondary mt-1.5 leading-relaxed">
+                Reach out for software development positions, IoT engineering collaborations, or technical discussions.
+              </p>
+            </div>
+
+            <div className="space-y-3 sm:space-y-3.5 pt-1">
               {profile?.email && (
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-accent/10 border border-card-border text-accent flex items-center justify-center">📧</div>
-                  <div>
-                    <div className="text-xs opacity-75 font-semibold uppercase tracking-wider">Direct Email</div>
-                    <a href={`mailto:${profile.email}`} className="text-sm hover:underline">{profile.email}</a>
+                <div className="bento-card p-3.5 xs:p-4 sm:p-5 flex items-center gap-3.5 sm:gap-4 hover:border-accent/40 transition-colors">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 text-blue-500 text-base sm:text-lg">
+                    ✉
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="font-sans font-semibold text-[10px] tracking-wider text-text-muted block uppercase">PRIMARY EMAIL</span>
+                    <a href={`mailto:${profile.email}`} className="text-xs sm:text-sm font-bold text-text-primary hover:text-accent transition-colors truncate block font-sans">
+                      {profile.email}
+                    </a>
                   </div>
                 </div>
               )}
+
               {profile?.linkedin && (
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-accent/10 border border-card-border text-accent flex items-center justify-center">💼</div>
-                  <div>
-                    <div className="text-xs opacity-75 font-semibold uppercase tracking-wider">LinkedIn Professional</div>
-                    <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm hover:underline">Connect on LinkedIn</a>
+                <div className="bento-card p-3.5 xs:p-4 sm:p-5 flex items-center gap-3.5 sm:gap-4 hover:border-accent/40 transition-colors">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center shrink-0 text-sky-500 text-base sm:text-lg">
+                    💼
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="font-sans font-semibold text-[10px] tracking-wider text-text-muted block uppercase">LINKEDIN NETWORK</span>
+                    <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-bold text-text-primary hover:text-accent transition-colors truncate block font-sans">
+                      Connect on LinkedIn ↗
+                    </a>
                   </div>
                 </div>
               )}
+
               {profile?.github && (
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-accent/10 border border-card-border text-accent flex items-center justify-center">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
-                    </svg>
+                <div className="bento-card p-3.5 xs:p-4 sm:p-5 flex items-center gap-3.5 sm:gap-4 hover:border-accent/40 transition-colors">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0 text-purple-500 text-base sm:text-lg">
+                    ⌘
                   </div>
-                  <div>
-                    <div className="text-xs opacity-75 font-semibold uppercase tracking-wider">GitHub Portfolio</div>
-                    <a href={profile.github} target="_blank" rel="noopener noreferrer" className="text-sm hover:underline">View Repositories</a>
+                  <div className="min-w-0 flex-1">
+                    <span className="font-sans font-semibold text-[10px] tracking-wider text-text-muted block uppercase">GITHUB REPOSITORIES</span>
+                    <a href={profile.github} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-bold text-text-primary hover:text-accent transition-colors truncate block font-sans">
+                      Explore GitHub Repositories ↗
+                    </a>
                   </div>
                 </div>
               )}
             </div>
           </div>
-          
-          <div className="md:col-span-7 p-6 md:p-8 rounded-2xl glass-panel">
+
+          <div className="lg:col-span-7 glass-panel bento-card p-4 xs:p-6 sm:p-8 lg:p-10">
             <ContactForm />
           </div>
         </section>
       </main>
 
-      {/* FOOTER */}
-      <footer className="border-t border-card-border bg-card/45 py-8 mt-24">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between text-xs opacity-80 gap-4">
-          <p>© {new Date().getFullYear()} {profile?.name || 'Dhamodharan'}. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <a href="#about" className="hover:text-accent transition-colors">About</a>
-            <a href="#skills" className="hover:text-accent transition-colors">Skills</a>
-            <a href="#projects" className="hover:text-accent transition-colors">Projects</a>
+      {/* Cyber Minimalist Footer */}
+      <footer className="border-t border-border-subtle bg-bg-surface/80 backdrop-blur-md py-8 sm:py-10 relative z-10">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 flex flex-col sm:flex-row items-center justify-between text-xs text-text-muted gap-4 text-center sm:text-left">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-accent shrink-0" />
+            <p className="font-sans font-medium text-[11px] sm:text-xs">© {new Date().getFullYear()} {profile?.name || 'DHAMODHARAN R'}. ALL RIGHTS RESERVED.</p>
+          </div>
+          <div className="flex flex-wrap justify-center sm:justify-end items-center gap-3 xs:gap-4 sm:gap-6 font-sans font-medium text-[10.5px] xs:text-[11px] sm:text-xs tracking-wide">
+            <a href="#about" className="hover:text-text-primary transition-colors">ABOUT</a>
+            <a href="#skills" className="hover:text-text-primary transition-colors">STACK</a>
+            <a href="#projects" className="hover:text-text-primary transition-colors">WORKS</a>
+            <a href="#experience" className="hover:text-text-primary transition-colors">CAREER</a>
+            <a href="#certifications" className="hover:text-text-primary transition-colors">CERTS</a>
+            <a href="#achievements" className="hover:text-text-primary transition-colors">AWARDS</a>
+            <a href="#contact" className="hover:text-text-primary transition-colors">CONTACT</a>
           </div>
         </div>
       </footer>
 
-      {/* FLOATING BOT WIDGET */}
+      {/* Assistant Launcher */}
       <AIChatbotWidget />
 
-      {/* MODALS */}
+      {/* Interactive Detail & Project Modals */}
       {selectedProject && (
-        <ProjectModal 
-          project={selectedProject} 
-          onClose={() => setSelectedProject(null)} 
+        <ProjectModal
+          project={selectedProject}
+          onClose={() => setSelectedProject(null)}
           onImageClick={(src, alt) => setLightboxImage({ src, alt })}
         />
       )}
-      
+
       {selectedExperience && (
-        <DetailModal 
-          item={selectedExperience} 
-          onClose={() => setSelectedExperience(null)} 
+        <DetailModal
+          item={selectedExperience}
+          onClose={() => setSelectedExperience(null)}
           onImageClick={(src, alt) => setLightboxImage({ src, alt })}
           type="experience"
         />
       )}
 
       {selectedEducation && (
-        <DetailModal 
-          item={selectedEducation} 
-          onClose={() => setSelectedEducation(null)} 
+        <DetailModal
+          item={selectedEducation}
+          onClose={() => setSelectedEducation(null)}
           onImageClick={(src, alt) => setLightboxImage({ src, alt })}
           type="education"
         />
       )}
 
       {selectedCertification && (
-        <DetailModal 
-          item={selectedCertification} 
-          onClose={() => setSelectedCertification(null)} 
+        <DetailModal
+          item={selectedCertification}
+          onClose={() => setSelectedCertification(null)}
           onImageClick={(src, alt) => setLightboxImage({ src, alt })}
           type="certification"
         />
       )}
 
       {selectedAchievement && (
-        <DetailModal 
-          item={selectedAchievement} 
-          onClose={() => setSelectedAchievement(null)} 
+        <DetailModal
+          item={selectedAchievement}
+          onClose={() => setSelectedAchievement(null)}
           onImageClick={(src, alt) => setLightboxImage({ src, alt })}
           type="achievement"
         />
       )}
-      
+
       {lightboxImage && (
-        <ImageLightbox 
-          src={lightboxImage.src} 
-          alt={lightboxImage.alt} 
-          onClose={() => setLightboxImage(null)} 
+        <ImageLightbox
+          src={lightboxImage.src}
+          alt={lightboxImage.alt}
+          onClose={() => setLightboxImage(null)}
         />
       )}
     </div>

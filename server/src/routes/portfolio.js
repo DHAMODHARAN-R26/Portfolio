@@ -1,6 +1,7 @@
 import express from 'express';
 import { db } from '../config/db.js';
 import { verifyAdminToken } from '../middleware/auth.js';
+import { sendContactNotification } from '../services/mail.js';
 
 const router = express.Router();
 
@@ -267,10 +268,25 @@ router.post('/contact', async (req, res) => {
     if (!name || !email || !message) {
       return res.status(400).json({ message: 'Name, email, and message are required.' });
     }
+    
+    // Store message in database
     const newMsg = await db.contacts.create({ name, email, subject, message });
     if (req.io) req.io.emit('new_contact_message', { id: newMsg.id });
-    res.status(201).json({ message: 'Message sent successfully.' });
+
+    // Dispatch direct email notification to Dhamodharan
+    const mailResult = await sendContactNotification({ name, email, subject, message });
+
+    res.status(201).json({
+      message: mailResult.sent
+        ? `Delivered directly to ${mailResult.receiver} email inbox!`
+        : `Message saved in dashboard. Direct email forwarding to ${mailResult.receiver} requires SMTP setup in .env.`,
+      emailed: mailResult.sent,
+      reason: mailResult.reason || mailResult.error,
+      receiver: mailResult.receiver,
+      mailtoUrl: mailResult.mailtoUrl
+    });
   } catch (err) {
+    console.error('Contact route error:', err);
     res.status(500).json({ message: 'Failed to send message.' });
   }
 });

@@ -27,15 +27,21 @@ export default function ContactForm() {
     setStatus({ type: '', message: '' });
 
     try {
-      await apiFetch('/api/portfolio/contact', {
+      const res = await apiFetch('/api/portfolio/contact', {
         method: 'POST',
         body: JSON.stringify(formData)
       });
-      setStatus({ type: 'success', message: 'Message sent successfully! Thank you.' });
+      setStatus({ 
+        type: 'success', 
+        message: res?.message || 'Transmission received. Delivered to Dhamodharan.',
+        mailtoUrl: res?.mailtoUrl,
+        emailed: res?.emailed,
+        receiver: res?.receiver || 'dhamodharanr08@gmail.com'
+      });
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (err) {
       console.error(err);
-      setStatus({ type: 'error', message: err.message || 'Failed to send message. Please try again later.' });
+      setStatus({ type: 'error', message: err.message || 'Failed to transmit message. Please try again.' });
     } finally {
       setLoading(false);
     }
@@ -43,18 +49,59 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="flex items-center justify-between border-b border-border-subtle pb-3">
+        <h3 className="text-sm font-bold text-text-primary tracking-tight">Direct Message Dispatch</h3>
+        <span className="font-sans font-semibold text-[11px] text-accent flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span>INBOX DIRECT</span>
+        </span>
+      </div>
+
       {status.message && (
-        <div className={`p-4 rounded-xl text-sm border ${
-          status.type === 'success' 
-            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' 
-            : 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400'
+        <div className={`p-4 rounded-xl text-xs font-medium border space-y-2.5 ${
+          status.emailed
+            ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
+            : status.type === 'success'
+            ? 'bg-blue-500/10 border-blue-500/25 text-blue-300'
+            : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
         }`}>
-          {status.message}
+          <div className="flex items-start gap-2.5">
+            <span className="text-base leading-none mt-0.5">
+              {status.emailed ? '✓' : status.type === 'success' ? 'ℹ' : '⚠'}
+            </span>
+            <div className="flex-1 space-y-1">
+              <p className="font-semibold text-text-primary text-xs sm:text-sm">
+                {status.emailed ? 'Delivered Directly to Gmail Inbox!' : status.message}
+              </p>
+              {!status.emailed && status.type === 'success' && (
+                <p className="text-[11px] text-text-muted leading-relaxed">
+                  The message is safely stored in your portfolio database. To deliver future messages straight to your Gmail inbox automatically, configure your Gmail App Password in <code className="bg-bg-elevated px-1 py-0.5 rounded text-accent">.env</code>.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {status.mailtoUrl && (
+            <div className="pt-2 border-t border-border-subtle flex flex-wrap items-center justify-between gap-2 text-[11px]">
+              <span className="text-text-muted">Target: {status.receiver || 'dhamodharanr08@gmail.com'}</span>
+              <a
+                href={status.mailtoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary text-[11px] py-1.5 px-3 font-semibold text-accent hover:border-accent flex items-center gap-1.5"
+              >
+                <span>✉️ Forward via Gmail / Email App Now</span>
+                <span>↗</span>
+              </a>
+            </div>
+          )}
         </div>
       )}
 
       <div>
-        <label htmlFor="name" className="block text-xs font-semibold uppercase tracking-wider mb-2 opacity-80">Your Name *</label>
+        <label htmlFor="name" className="block text-xs font-medium text-text-secondary mb-1.5 font-sans">
+          NAME <span className="text-accent">*</span>
+        </label>
         <input
           id="name"
           type="text"
@@ -63,14 +110,16 @@ export default function ContactForm() {
           onChange={handleChange}
           required
           disabled={loading}
-          placeholder="e.g. John Doe"
-          className="w-full px-4 py-3 rounded-xl bg-background/50 border border-card-border focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all disabled:opacity-55"
+          placeholder="e.g. Alex Hunter"
+          className="w-full px-4 py-2.5 rounded-xl bg-bg-surface border border-border-subtle text-text-primary text-xs focus:border-accent focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all placeholder:text-text-muted disabled:opacity-50"
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider mb-2 opacity-80">Your Email *</label>
+          <label htmlFor="email" className="block text-xs font-medium text-text-secondary mb-1.5 font-sans">
+            EMAIL <span className="text-accent">*</span>
+          </label>
           <input
             id="email"
             type="email"
@@ -79,12 +128,14 @@ export default function ContactForm() {
             onChange={handleChange}
             required
             disabled={loading}
-            placeholder="e.g. john@example.com"
-            className="w-full px-4 py-3 rounded-xl bg-background/50 border border-card-border focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all disabled:opacity-55"
+            placeholder="alex@company.com"
+            className="w-full px-4 py-2.5 rounded-xl bg-bg-surface border border-border-subtle text-text-primary text-xs focus:border-accent focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all placeholder:text-text-muted disabled:opacity-50"
           />
         </div>
         <div>
-          <label htmlFor="subject" className="block text-xs font-semibold uppercase tracking-wider mb-2 opacity-80">Subject</label>
+          <label htmlFor="subject" className="block text-xs font-medium text-text-secondary mb-1.5 font-sans">
+            SUBJECT
+          </label>
           <input
             id="subject"
             type="text"
@@ -92,49 +143,50 @@ export default function ContactForm() {
             value={formData.subject}
             onChange={handleChange}
             disabled={loading}
-            placeholder="e.g. Project Inquiry"
-            className="w-full px-4 py-3 rounded-xl bg-background/50 border border-card-border focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all disabled:opacity-55"
+            placeholder="Engineering Role / Project"
+            className="w-full px-4 py-2.5 rounded-xl bg-bg-surface border border-border-subtle text-text-primary text-xs focus:border-accent focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all placeholder:text-text-muted disabled:opacity-50"
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="message" className="block text-xs font-semibold uppercase tracking-wider mb-2 opacity-80">Message *</label>
+        <label htmlFor="message" className="block text-xs font-medium text-text-secondary mb-1.5 font-sans">
+          MESSAGE <span className="text-accent">*</span>
+        </label>
         <textarea
           id="message"
           name="message"
-          rows={5}
+          rows={4}
           value={formData.message}
           onChange={handleChange}
           required
           disabled={loading}
-          placeholder="What would you like to discuss?"
-          className="w-full px-4 py-3 rounded-xl bg-background/50 border border-card-border focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all resize-y disabled:opacity-55"
+          placeholder="Share project parameters, job description, or message details..."
+          className="w-full px-4 py-2.5 rounded-xl bg-bg-surface border border-border-subtle text-text-primary text-xs focus:border-accent focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all resize-y placeholder:text-text-muted disabled:opacity-50"
         />
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3.5 rounded-xl bg-accent text-white font-medium hover:bg-accent-hover transition-colors shadow-lg shadow-accent/10 focus:outline-none flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+        className="btn-primary w-full py-3 sm:py-3.5 text-xs xs:text-sm font-semibold tracking-wide uppercase disabled:opacity-50 disabled:cursor-not-allowed shadow-md min-h-[44px] justify-center flex items-center gap-2"
       >
-        {loading ? (
-          <>
-            <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-            </svg>
-            <span>Sending Message...</span>
-          </>
-        ) : (
-          <>
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-            <span>Send Message</span>
-          </>
-        )}
+        {loading ? 'Transmitting to Mailbox...' : 'Dispatch Message Directly →'}
       </button>
+
+      <div className="pt-1 flex flex-col xs:flex-row xs:items-center justify-between gap-2 text-[11px] text-text-muted font-sans font-medium">
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+          <span className="truncate">Delivers to: dhamodharanr08@gmail.com</span>
+        </span>
+        <a
+          href="mailto:dhamodharanr08@gmail.com?subject=Portfolio%20Direct%20Inquiry"
+          className="text-accent hover:underline flex items-center gap-1 shrink-0 self-start xs:self-auto"
+        >
+          <span>Open in Mail App</span>
+          <span>↗</span>
+        </a>
+      </div>
     </form>
   );
 }

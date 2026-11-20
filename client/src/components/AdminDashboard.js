@@ -12,20 +12,19 @@ export default function AdminDashboard() {
     const match = filename.match(/^\w+-\d+-\d+-(.+)$/);
     return match ? match[1] : filename;
   };
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        setDarkMode(true);
-        document.documentElement.classList.add('dark');
-      } else {
-        setDarkMode(false);
-        document.documentElement.classList.remove('dark');
-      }
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
-  }, []);
+  }, [darkMode]);
 
   const toggleTheme = () => {
     if (darkMode) {
@@ -146,8 +145,8 @@ export default function AdminDashboard() {
           await apiFetch('/api/auth/verify');
           setIsAuthenticated(true);
           fetchDashboardData();
-        } catch (err) {
-          console.error('Session verification failed:', err);
+        } catch {
+          // Stale or expired token; clean up to display login interface
           localStorage.removeItem('admin_token');
         }
       }
@@ -1542,9 +1541,14 @@ export default function AdminDashboard() {
                     onChange={(e) => setSkillForm({ ...skillForm, category: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-background border border-card-border outline-none text-sm focus:border-accent"
                   >
+                    <option value="Languages">Languages</option>
                     <option value="Frontend">Frontend</option>
-                    <option value="Backend">Backend</option>
-                    <option value="AI & ML">AI & ML</option>
+                    <option value="Databases">Databases</option>
+                    <option value="AI & Data Science">AI & Data Science</option>
+                    <option value="Core CS">Core CS</option>
+                    <option value="IoT & Embedded">IoT & Embedded</option>
+                    <option value="Tools">Tools</option>
+                    <option value="Soft Skills">Soft Skills</option>
                     <option value="Other">Other</option>
                   </select>
                 </div>
