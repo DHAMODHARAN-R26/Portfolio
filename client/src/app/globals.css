@@ -1,0 +1,178 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #fdfbff;
+    /* Soft warm lavender white background */
+    --foreground: #09031c;
+    /* Deep amethyst indigo text */
+    --card: rgba(255, 255, 255, 0.45);
+    /* Frosty translucent white */
+    --card-border: rgba(124, 58, 237, 0.1);
+    /* Super light violet border */
+    --accent: #8b5cf6;
+    /* Sleek violet */
+    --accent-hover: #7c3aed;
+    --accent-glow: rgba(139, 92, 246, 0.15);
+
+    --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .dark {
+    --background: #060214;
+    /* Deep outer-space indigo black */
+    --foreground: #f4f0ff;
+    /* Bright crystal violet text */
+    --card: rgba(15, 8, 28, 0.45);
+    /* Frosted dark amethyst obsidian */
+    --card-border: rgba(217, 70, 239, 0.15);
+    /* Vibrant translucent fuchsia border */
+    --accent: #e879f9;
+    /* Cyber neon fuchsia */
+    --accent-hover: #f472b6;
+    /* Soft hot pink */
+    --accent-glow: rgba(232, 121, 249, 0.25);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-border: var(--card-border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+}
+
+/* Glassmorphism utility classes */
+.glass-panel {
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 8px 32px 0 rgba(139, 92, 246, 0.03);
+}
+
+.dark .glass-panel {
+  background: rgba(12, 6, 24, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+}
+
+.glass-card {
+  background: var(--card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 4px 24px 0 rgba(139, 92, 246, 0.02);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .glass-card {
+  background: rgba(15, 8, 28, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.03);
+}
+
+.glass-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  border-color: var(--accent);
+  box-shadow: 0 20px 40px -10px var(--accent-glow);
+}
+
+/* Custom glow blob effects */
+.glow-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  opacity: 0.18;
+  pointer-events: none;
+  z-index: 0;
+  transition: all 0.5s ease;
+  animation: float-slow 15s infinite ease-in-out;
+}
+
+.dark .glow-blob {
+  opacity: 0.28;
+}
+
+@keyframes float-slow {
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-20px) scale(1.1);
+  }
+}
+
+/* Scrollbar customizations */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Modern grid dot pattern backdrop */
+.grid-backdrop {
+  background-image: radial-gradient(var(--card-border) 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
+}
+
+/* Custom keyframes & animated effects */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 12px var(--accent));
+  }
+}
+
+.animate-glow {
+  animation: pulse-glow 2s infinite ease-in-out;
+}

@@ -1,0 +1,388 @@
+{
+  "profile": {
+    "name": "DHAMODHARAN R",
+    "title": "SOFTWARE DEVELOPER",
+    "bio": "I am a motivated Computer Science student currently learning Full Stack Development, with practical experience in IoT-based projects like smart monitoring systems. I enjoy building innovative solutions that combine software and hardware to solve real-world challenges. I am eager to apply my skills and continuously learn new technologies.",
+    "image": "/uploads/file-1781793693859-652901400.jpeg",
+    "resume": "/uploads/file-1781790088271-547068572.pdf",
+    "github": "https://github.com/DHAMODHARAN-R26",
+    "linkedin": "https://linkedin.com/in/dhamo-r",
+    "email": "dhamodharanr08@gmail.com",
+    "phone": "+91 8778119621",
+    "location": "Acet,Villianur"
+  },
+  "skills": [
+    {
+      "id": "sk-1",
+      "name": "HTML",
+      "category": "Frontend",
+      "percentage": 95
+    },
+    {
+      "id": "sk-2",
+      "name": "CSS",
+      "category": "Frontend",
+      "percentage": 90
+    },
+    {
+      "id": "sk-3",
+      "name": "JAVASCRIPT",
+      "category": "Frontend",
+      "percentage": 92
+    },
+    {
+      "id": "sk-4",
+      "name": "C",
+      "category": "Backend",
+      "percentage": 90
+    },
+    {
+      "id": "sk-5",
+      "name": "C++",
+      "category": "Backend",
+      "percentage": 85
+    },
+    {
+      "id": "sk-6",
+      "name": "Python",
+      "category": "Backend",
+      "percentage": 90
+    },
+    {
+      "id": "sk-7",
+      "name": "Java",
+      "category": "Backend",
+      "percentage": 85
+    },
+    {
+      "id": "sk-8",
+      "name": "MYSQL",
+      "category": "DB",
+      "percentage": 88
+    },
+    {
+      "id": "sk-9",
+      "name": "JDBC",
+      "category": "DB",
+      "percentage": 80
+    },
+    {
+      "id": "sk-10",
+      "name": "NUMPY",
+      "category": "Frameworks",
+      "percentage": 80
+    },
+    {
+      "id": "sk-11",
+      "name": "DSA",
+      "category": "Tools",
+      "percentage": 88
+    },
+    {
+      "id": "sk-12",
+      "name": "Communication Skills",
+      "category": "Softskill",
+      "percentage": 90
+    },
+    {
+      "id": "sk-13",
+      "name": "Problem-Solving",
+      "category": "Softskill",
+      "percentage": 92
+    },
+    {
+      "id": "sk-14",
+      "name": "Teamwork",
+      "category": "Softskill",
+      "percentage": 90
+    },
+    {
+      "id": "sk-15",
+      "name": "Time Management",
+      "category": "Softskill",
+      "percentage": 85
+    },
+    {
+      "id": "sk-16",
+      "name": "Adaptability",
+      "category": "Softskill",
+      "percentage": 90
+    },
+    {
+      "id": "sk-17",
+      "name": "Leadership",
+      "category": "Softskill",
+      "percentage": 85
+    },
+    {
+      "id": "sk-18",
+      "name": "Critical Thinking",
+      "category": "Softskill",
+      "percentage": 88
+    },
+    {
+      "id": "sk-19",
+      "name": "Creativity",
+      "category": "Softskill",
+      "percentage": 90
+    }
+  ],
+  "projects": [
+    {
+      "id": "pr-1",
+      "title": "Nivora – Smart Intelligent Mountain Road Safety System",
+      "description": "Developed an IoT-based system to detect vehicles at blind curves and reduce accident risks. Implemented real-time bidirectional alerts for approaching vehicles, integrated emergency SOS feature with GPS for accident situations, and designed fail-safe mechanisms for communication and power failures.",
+      "techStack": [
+        "IoT",
+        "Sensors",
+        "GPS",
+        "Bidirectional Alerts",
+        "Fail-safe Systems"
+      ],
+      "githubUrl": "https://github.com/DHAMODHARAN-R26",
+      "demoUrl": "",
+      "imageUrl": "/uploads/file-1781844627553-966569308.png"
+    },
+    {
+      "id": "pr-2",
+      "title": "Zerora – Advanced Water Monitoring & Automatic Cleaning System",
+      "description": "Built a smart system to monitor water quality using pH, turbidity, and TDS sensors. Implemented real-time detection of contaminants and unsafe conditions, designed automatic cleaning mechanism to flush and refill contaminated water, and integrated alert system for notifying users about water quality issues.",
+      "techStack": [
+        "IoT",
+        "pH Sensor",
+        "Turbidity",
+        "TDS Sensor",
+        "Automation"
+      ],
+      "githubUrl": "https://github.com/DHAMODHARAN-R26",
+      "demoUrl": "",
+      "imageUrl": "/uploads/file-1781844638364-183887740.png"
+    },
+    {
+      "id": "pr-3",
+      "title": "InOrOut – Real-Time Smart Faculty Availability & Notification System",
+      "description": "Developed a system to track faculty availability using real-time entry/exit sensor detection. Implemented sensor-based monitoring to update status automatically, designed notification system to inform students about faculty presence, and improved communication efficiency within the institution.",
+      "techStack": [
+        "IoT",
+        "Entry/Exit Sensors",
+        "Automatic Updates",
+        "Notifications"
+      ],
+      "githubUrl": "https://github.com/DHAMODHARAN-R26",
+      "demoUrl": "",
+      "imageUrl": "/uploads/file-1782100119236-923544116.jpeg",
+      "reportUrl": "/uploads/file-1782100108233-632558747.pdf"
+    },
+    {
+      "id": "pr-4",
+      "title": "Digilog – Digital Student Monitoring System",
+      "description": "Developed a digital system to monitor and manage student activity records. Replaced manual tracking with automated data logging, designed structured data storage for easy retrieval and analysis, and improved accuracy and efficiency in monitoring processes.",
+      "techStack": [
+        "Data Logging",
+        "Automated Monitoring",
+        "Structured Storage",
+        "Data Analysis"
+      ],
+      "githubUrl": "https://github.com/DHAMODHARAN-R26",
+      "demoUrl": "",
+      "imageUrl": ""
+    },
+    {
+      "id": "pr-5",
+      "title": "CSENEXUS – Department Coordination Website",
+      "description": "Developed a web platform for managing departmental activities and communication. Designed user-friendly interface for announcements and updates, structured content for easy access by students and faculty, and improved coordination and information sharing within the department.",
+      "techStack": [
+        "Web Development",
+        "Frontend",
+        "UI Design",
+        "Coordination Tools"
+      ],
+      "githubUrl": "https://github.com/DHAMODHARAN-R26",
+      "demoUrl": "",
+      "imageUrl": ""
+    }
+  ],
+  "achievements": [
+    {
+      "id": "ac-1",
+      "title": "Shortlisted for Smart India Hackathon (SIH)",
+      "issuer": "Smart India Hackathon",
+      "date": "2025",
+      "description": "Selected among top teams for implementing national-level solutions under technical tracks.",
+      "imageUrl": "",
+      "githubUrl": "https://github.com/DHAMODHARAN-R26"
+    },
+    {
+      "id": "ac-2",
+      "title": "1st Prize, Paper Presentation",
+      "issuer": "Pondicherry Technological University (PTU)",
+      "date": "2026",
+      "description": "Awarded first place for presenting technical research and concepts.",
+      "imageUrl": "",
+      "githubUrl": "",
+      "reportUrls": [
+        "/uploads/files-1782119994746-239230280-NLH_2026__1_.pdf"
+      ],
+      "reportUrl": "/uploads/files-1782119994746-239230280-NLH_2026__1_.pdf"
+    },
+    {
+      "id": "ac-3",
+      "title": "2nd Prize, Paper Presentation",
+      "issuer": "Pondicherry Technological University (PTU)",
+      "date": "2026",
+      "description": "Awarded second place for paper presentation.",
+      "imageUrl": "",
+      "githubUrl": ""
+    },
+    {
+      "id": "ac-4",
+      "title": "2nd Prize, Paper Presentation",
+      "issuer": "Pondicherry Technological University (PTU)",
+      "date": "2025",
+      "description": "Awarded second place for paper presentation.",
+      "imageUrl": "",
+      "githubUrl": ""
+    },
+    {
+      "id": "ac-5",
+      "title": "2nd Prize, Paper Presentation (Azollax Project)",
+      "issuer": "Pondicherry Technological University (PTU)",
+      "date": "2025",
+      "description": "Presented research and technical development on the Azollax project.",
+      "imageUrl": "",
+      "githubUrl": ""
+    },
+    {
+      "id": "ac-6",
+      "title": "1st Prize, National Science Day Expo",
+      "issuer": "Achariya College of Engineering and Technology",
+      "date": "2026",
+      "description": "Won first prize in the national-level science exhibition.",
+      "imageUrl": "",
+      "githubUrl": ""
+    },
+    {
+      "id": "ac-7",
+      "title": "3rd Prize, National Science Day Expo",
+      "issuer": "Achariya College of Engineering and Technology",
+      "date": "2026",
+      "description": "Awarded third place in the national science expo.",
+      "imageUrl": "",
+      "githubUrl": ""
+    },
+    {
+      "id": "ac-8",
+      "title": "2nd Prize, Poster Presentation",
+      "issuer": "Achariya College of Engineering and Technology",
+      "date": "2026",
+      "description": "Awarded second place in technical poster representation.",
+      "imageUrl": "",
+      "githubUrl": ""
+    },
+    {
+      "id": "ac-9",
+      "title": "2nd Prize, Reverse Engineering",
+      "issuer": "Achariya College of Engineering and Technology",
+      "date": "2026",
+      "description": "Showed deep troubleshooting and deduction skills to win 2nd place in reverse engineering.",
+      "imageUrl": "",
+      "githubUrl": ""
+    },
+    {
+      "id": "ac-10",
+      "title": "2nd Prize, Code Debugging",
+      "issuer": "Achariya College of Engineering and Technology",
+      "date": "2026",
+      "description": "Awarded second place for speed and accuracy in debugging complex software issues.",
+      "imageUrl": "",
+      "githubUrl": ""
+    }
+  ],
+  "experience": [
+    {
+      "id": "ex-1",
+      "role": "Web Development Intern",
+      "company": "SkillBuilder Academy",
+      "date": "Dec 2025-Jan 2026",
+      "description": "Developed foundational skills in website development using Antigravity with exposure to frontend–backend integration. Contributed to building web pages and learned routing, application structure, and deployment concepts.",
+      "imageUrl": "/uploads/file-1781797984975-152057615.png",
+      "githubUrl": "",
+      "reportUrl": "/uploads/file-1782101063978-515803204.pdf"
+    }
+  ],
+  "education": [
+    {
+      "id": "ed-1",
+      "degree": "B.Tech In Computer Science & Engineering",
+      "institution": "Achariya College Of Engineering Technology",
+      "date": "2024-Present",
+      "description": "CGPA : 9.23",
+      "imageUrl": "/uploads/files-1782117713412-444946696.jpeg",
+      "githubUrl": "",
+      "reportUrls": [
+        "/uploads/files-1782117622495-632531694.pdf"
+      ],
+      "reportUrl": "/uploads/files-1782117622495-632531694.pdf",
+      "imageUrls": [
+        "/uploads/files-1782117713412-444946696.jpeg"
+      ]
+    }
+  ],
+  "certifications": [
+    {
+      "id": "ce-1",
+      "title": "Full Stack Development",
+      "issuer": "CodeBuilders (Ongoing)",
+      "date": "Ongoing",
+      "description": "Ongoing comprehensive program focused on building fully integrated web applications.",
+      "imageUrl": "/uploads/file-1781798006281-637074272.png",
+      "githubUrl": ""
+    },
+    {
+      "id": "ce-2",
+      "title": "AI & Machine Learning Workshop",
+      "issuer": "Indian Institute of Science",
+      "date": "2026",
+      "description": "Workshop covering state of the art techniques in Artificial Intelligence and Machine Learning.",
+      "imageUrl": "",
+      "githubUrl": ""
+    },
+    {
+      "id": "ce-3",
+      "title": "Python Acceleration Program",
+      "issuer": "Ministry of Micro, Small and Medium Enterprises",
+      "date": "2025",
+      "description": "Program focusing on advanced Python development and optimization.",
+      "imageUrl": "",
+      "githubUrl": "",
+      "reportUrls": [
+        "/uploads/files-1782117634124-8584961.pdf",
+        "/uploads/files-1782119774788-105883579-NLH3.pdf"
+      ],
+      "reportUrl": "/uploads/files-1782119774788-105883579-NLH3.pdf"
+    },
+    {
+      "id": "ce-4",
+      "title": "Programming with Data Structures and Algorithms",
+      "issuer": "NPTEL",
+      "date": "2025",
+      "description": "Successful completion of the DSA program, covering standard algorithms and memory structures.",
+      "imageUrl": "",
+      "githubUrl": "",
+      "reportUrls": [
+        "/uploads/files-1782118466492-316622051-NLH3__1_.pdf"
+      ],
+      "reportUrl": "/uploads/files-1782118466492-316622051-NLH3__1_.pdf"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "co-1782134296712",
+      "createdAt": "2026-06-22T13:18:16.712Z",
+      "name": "Dhamodharan",
+      "email": "adyfda@gmail.com",
+      "subject": "happy",
+      "message": "hire Me"
+    }
+  ]
+}
