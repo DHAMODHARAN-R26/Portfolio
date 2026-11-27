@@ -758,26 +758,26 @@ export default function ResumeAnalyzer() {
               <div>
                 <h4 className="text-base font-black text-text-primary">Dhamodharan R</h4>
                 <p className="text-xs text-text-secondary mt-0.5">
-                  B.Tech in Computer Science & Engineering • CGPA: 9.23
+                  B.Tech in Computer Science & Engineering • CGPA: 9.05
                 </p>
               </div>
 
               <div className="space-y-2 text-xs text-text-secondary bg-bg-elevated/50 p-3.5 rounded-xl border border-border-subtle font-sans">
                 <div className="flex items-start gap-2">
                   <span className="text-accent font-bold">▸</span>
-                  <span><strong>Core Languages:</strong> C, C++, Python, Java, JavaScript, SQL</span>
+                  <span><strong>Core Languages:</strong> Java, Python, JavaScript, C, C++, MySQL</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-accent font-bold">▸</span>
-                  <span><strong>Full-Stack & Web:</strong> React, Next.js, Node.js, Express, REST APIs</span>
+                  <span><strong>Web & AI/ML:</strong> HTML5, CSS3, Responsive Design, Pandas, NumPy, Matplotlib, NLTK</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-accent font-bold">▸</span>
-                  <span><strong>Hardware / IoT:</strong> Turbidity, pH sensors, ESP32, automation</span>
+                  <span><strong>Hardware / IoT:</strong> Arduino, Raspberry Pi, STM32, Sensors, GSM Modules</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-accent font-bold">▸</span>
-                  <span><strong>Key Deployments:</strong> Zerora, InOrOut, Digilog, CSENEXUS</span>
+                  <span><strong>Key Deployments:</strong> Nivora, Zerora, InOrOut, Digilog, CSENEXUS, Aquanest</span>
                 </div>
               </div>
 

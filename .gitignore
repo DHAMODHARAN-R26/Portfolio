@@ -8,7 +8,9 @@ server/node_modules/
 .env.*
 !.env.example
 client/.env*
+!client/.env.example
 server/.env*
+!server/.env.example
 
 # Next.js Build Output
 .next/

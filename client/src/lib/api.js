@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005';
 
 /**
  * Helper to construct full API URL
@@ -28,8 +28,8 @@ export async function apiFetch(path, options = {}) {
   const url = getApiUrl(path);
   const headers = { ...options.headers };
 
-  // Set default Content-Type if not FormData
-  if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+  // Set default Content-Type only if there is a body and it is not FormData
+  if (options.body && !(options.body instanceof FormData) && !headers['Content-Type']) {
     headers['Content-Type'] = 'application/json';
   }
 
@@ -41,10 +41,18 @@ export async function apiFetch(path, options = {}) {
     }
   }
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
+  let response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers,
+    });
+  } catch (err) {
+    if (err.name === 'TypeError' || err.message?.toLowerCase().includes('failed to fetch')) {
+      throw new Error(`Failed to connect to backend server at ${url}. Please ensure the backend is running.`);
+    }
+    throw err;
+  }
 
   const contentType = response.headers.get('content-type');
   let data;

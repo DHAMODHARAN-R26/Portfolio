@@ -64,7 +64,7 @@ export async function getDhamoResumeText(portfolioData) {
   return `
     NAME: ${p.name || 'DHAMODHARAN R'}
     TITLE: ${p.title || 'SOFTWARE DEVELOPER'}
-    LOCATION: ${p.location || 'Acet, Villianur, Puducherry'}
+    LOCATION: ${p.location || 'Pondicherry, India'}
     BIO: ${p.bio || ''}
     EDUCATION: ${(portfolioData?.education || []).map(ed => `${ed.degree} from ${ed.institution} (${ed.date}): ${ed.description}`).join('; ')}
     TECHNICAL SKILLS: ${(portfolioData?.skills || []).map(s => `${s.name} (${s.category}, ${s.percentage}%)`).join(', ')}
@@ -548,5 +548,5 @@ function generateOfflineResponse(userMessage, portfolioData) {
     return `${name}'s Profile: **${portfolioData.profile.title}**\n\n${portfolioData.profile.bio}`;
   }
 
-  return `Thanks for asking! I'm **ZAZA**, and I can tell you that ${name} is a skilled **${portfolioData.profile.title || 'Software Developer'}** experienced in Full-Stack Development, C/C++, IoT hardware integrations, and algorithms. Feel free to contact him directly at ${portfolioData.profile.email || 'dhamodharanr08@gmail.com'} or use the AI Resume Evaluation tool.`;
+  return `Thanks for asking! I'm **ZAZA**, and I can tell you that ${name} is a skilled **${portfolioData.profile.title || 'Software Developer'}** experienced in Full-Stack Development, AI/ML applications, C/C++, IoT hardware integrations, and algorithms. Feel free to contact him directly at ${portfolioData.profile.email || 'dhamodharancse26@gmail.com'} or use the AI Resume Evaluation tool.`;
 }

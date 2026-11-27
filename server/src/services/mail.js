@@ -64,20 +64,34 @@ export async function sendContactNotification({ name, email, subject, message })
   }
 
   try {
+    const isGmail = config.smtpHost.includes('gmail');
     const isSecure = config.smtpPort === 465;
 
-    const transporter = nodemailer.createTransport({
-      host: config.smtpHost,
-      port: config.smtpPort,
-      secure: isSecure,
-      auth: {
-        user: config.smtpUser,
-        pass: config.smtpPass
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
+    const transportOptions = isGmail
+      ? {
+          service: 'gmail',
+          auth: {
+            user: config.smtpUser,
+            pass: config.smtpPass
+          },
+          tls: {
+            rejectUnauthorized: false
+          }
+        }
+      : {
+          host: config.smtpHost,
+          port: config.smtpPort,
+          secure: isSecure,
+          auth: {
+            user: config.smtpUser,
+            pass: config.smtpPass
+          },
+          tls: {
+            rejectUnauthorized: false
+          }
+        };
+
+    const transporter = nodemailer.createTransport(transportOptions);
 
     const emailSubject = `📬 Portfolio Contact: ${subject || 'New Inquiry'} from ${name}`;
     const timestamp = new Date().toLocaleString('en-US', {

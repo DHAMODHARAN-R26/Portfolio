@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen flex flex-col bg-bg-main text-text-primary transition-colors duration-200 overflow-x-hidden">
+      <body className="min-h-screen flex flex-col bg-bg-main text-text-primary transition-colors duration-200 overflow-x-hidden w-full max-w-full">
         {children}
       </body>
     </html>

@@ -102,7 +102,7 @@ export default function AIChatbotWidget() {
       )}
 
       {/* Floating Widget Container — Ergonomically offset across all device screen sizes */}
-      <div className="fixed bottom-3 right-3 xs:bottom-5 xs:right-4 sm:bottom-7 sm:right-7 lg:bottom-8 lg:right-8 z-50 max-w-[calc(100vw-1.5rem)]">
+      <div className="fixed bottom-3 right-3 xs:bottom-5 xs:right-4 sm:bottom-7 sm:right-7 lg:bottom-8 lg:right-8 z-50 max-w-[calc(100%-1.5rem)]">
         {/* Floating Futuristic Launcher */}
         {!isOpen && (
           <div className="relative flex flex-col items-end">

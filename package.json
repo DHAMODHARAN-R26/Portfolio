@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "setup": "npm install && npm run install-client && npm run install-server",
-    "install-client": "cmd /c \"cd client && npm install\"",
-    "install-server": "cmd /c \"cd server && npm install\"",
+    "install-client": "npm --prefix client install",
+    "install-server": "npm --prefix server install",
+    "build": "npm --prefix client run build",
     "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
     "start": "concurrently \"npm run start --prefix client\" \"npm run start --prefix server\"",
     "lint": "npm run lint --prefix client"

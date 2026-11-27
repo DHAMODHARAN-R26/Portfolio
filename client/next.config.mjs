@@ -10,11 +10,27 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
         protocol: 'http',
         hostname: 'localhost',
-        port: '5000',
       },
     ],
+  },
+  async rewrites() {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005';
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
+      },
+      {
+        source: '/uploads/:path*',
+        destination: `${backendUrl}/uploads/:path*`,
+      },
+    ];
   },
 };
 

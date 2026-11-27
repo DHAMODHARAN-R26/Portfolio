@@ -60,34 +60,43 @@ export default function Home() {
     }
   };
 
-  const fetchPortfolioData = useCallback(async () => {
-    try {
-      const data = await apiFetch('/api/portfolio/data');
-      setPortfolio({
-        profile: data.profile || null,
-        skills: data.skills || [],
-        projects: data.projects || [],
-        achievements: data.achievements || [],
-        experience: data.experience || [],
-        education: data.education || [],
-        certifications: data.certifications || []
-      });
-      setError(null);
-    } catch (err) {
-      console.error('Failed to load portfolio details:', err);
-      setError('Could not connect to the backend server. Make sure the server is running on http://localhost:5000');
-    } finally {
-      setLoading(false);
+  const fetchPortfolioData = useCallback(async (isRetry = false) => {
+    async function load(retry) {
+      try {
+        const data = await apiFetch('/api/portfolio/data');
+        setPortfolio({
+          profile: data.profile || null,
+          skills: data.skills || [],
+          projects: data.projects || [],
+          achievements: data.achievements || [],
+          experience: data.experience || [],
+          education: data.education || [],
+          certifications: data.certifications || []
+        });
+        setError(null);
+      } catch (err) {
+        console.error('Failed to load portfolio details:', err);
+        if (!retry) {
+          setTimeout(() => load(true), 1200);
+        } else {
+          setError('Could not connect to the backend server. Make sure the backend server is running.');
+        }
+      } finally {
+        setLoading(false);
+      }
     }
+    return load(isRetry);
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- data fetching on mount
     fetchPortfolioData();
 
     const socket = getSocket();
     if (socket) {
       socket.connect();
+      socket.on('connect', () => {
+        fetchPortfolioData();
+      });
       socket.on('portfolio_updated', () => {
         fetchPortfolioData();
       });
@@ -95,6 +104,7 @@ export default function Home() {
 
     return () => {
       if (socket) {
+        socket.off('connect');
         socket.off('portfolio_updated');
         socket.disconnect();
       }
@@ -147,10 +157,12 @@ export default function Home() {
   const gridProjects = projects && projects.length > 1 ? projects.slice(1) : [];
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg-main text-text-primary selection:bg-accent/30 selection:text-white relative bg-grid-pattern">
-      {/* Ambient Lighting Cones */}
-      <div className="ambient-glow-top" />
-      <div className="ambient-glow-mid" />
+    <div className="min-h-screen flex flex-col bg-bg-main text-text-primary selection:bg-accent/30 selection:text-white relative bg-grid-pattern overflow-x-hidden w-full max-w-full">
+      {/* Ambient Lighting Cones (enclosed to prevent horizontal bleed) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+        <div className="ambient-glow-top" />
+        <div className="ambient-glow-mid" />
+      </div>
 
       <AIOfflineIndicator />
 

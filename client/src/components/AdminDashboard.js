@@ -5,6 +5,9 @@ import Image from 'next/image';
 import { apiFetch, getUploadUrl, getApiUrl } from '../lib/api';
 import { getSocket } from '../lib/socket';
 
+const normalizeItem = (item) => (item ? { ...item, id: item.id || item._id } : item);
+const normalizeList = (list) => (Array.isArray(list) ? list.map(normalizeItem) : []);
+
 export default function AdminDashboard() {
   const formatFileName = (url) => {
     if (!url) return '';
@@ -114,7 +117,7 @@ export default function AdminDashboard() {
   const fetchMessages = useCallback(async () => {
     try {
       const msgs = await apiFetch('/api/portfolio/contacts');
-      setMessages(msgs || []);
+      setMessages(normalizeList(msgs));
     } catch (err) {
       console.error(err);
     }
@@ -124,12 +127,12 @@ export default function AdminDashboard() {
     try {
       const data = await apiFetch('/api/portfolio/data');
       if (data.profile) setProfile(data.profile);
-      if (data.skills) setSkills(data.skills);
-      if (data.projects) setProjects(data.projects);
-      if (data.achievements) setAchievements(data.achievements);
-      if (data.experience) setExperience(data.experience);
-      if (data.education) setEducation(data.education);
-      if (data.certifications) setCertifications(data.certifications);
+      if (data.skills) setSkills(normalizeList(data.skills));
+      if (data.projects) setProjects(normalizeList(data.projects));
+      if (data.achievements) setAchievements(normalizeList(data.achievements));
+      if (data.experience) setExperience(normalizeList(data.experience));
+      if (data.education) setEducation(normalizeList(data.education));
+      if (data.certifications) setCertifications(normalizeList(data.certifications));
       fetchMessages();
     } catch (err) {
       showStatus('error', 'Failed to load portfolio dashboard details.');
@@ -332,7 +335,8 @@ export default function AdminDashboard() {
             percentage: Number(skillForm.percentage)
           })
         });
-        setSkills(skills.map(s => s.id === skillForm.id ? updated.data : s));
+        const norm = normalizeItem(updated.data);
+        setSkills(skills.map(s => (s.id || s._id) === skillForm.id ? norm : s));
         showStatus('success', 'Skill updated successfully.');
       } else {
         // Create
@@ -344,7 +348,7 @@ export default function AdminDashboard() {
             percentage: Number(skillForm.percentage)
           })
         });
-        setSkills([...skills, created.data]);
+        setSkills([...skills, normalizeItem(created.data)]);
         showStatus('success', 'Skill created successfully.');
       }
       setSkillModal(false);
@@ -357,7 +361,7 @@ export default function AdminDashboard() {
     if (!confirm('Are you sure you want to delete this skill?')) return;
     try {
       await apiFetch(`/api/portfolio/skills/${id}`, { method: 'DELETE' });
-      setSkills(skills.filter(s => s.id !== id));
+      setSkills(skills.filter(s => (s.id || s._id) !== id));
       showStatus('success', 'Skill deleted.');
     } catch (err) {
       showStatus('error', 'Failed to delete skill.');
@@ -382,14 +386,15 @@ export default function AdminDashboard() {
           method: 'PUT',
           body: JSON.stringify(formatted)
         });
-        setProjects(projects.map(p => p.id === projectForm.id ? updated.data : p));
+        const norm = normalizeItem(updated.data);
+        setProjects(projects.map(p => (p.id || p._id) === projectForm.id ? norm : p));
         showStatus('success', 'Project updated successfully.');
       } else {
         const created = await apiFetch('/api/portfolio/projects', {
           method: 'POST',
           body: JSON.stringify(formatted)
         });
-        setProjects([...projects, created.data]);
+        setProjects([...projects, normalizeItem(created.data)]);
         showStatus('success', 'Project created successfully.');
       }
       setProjectModal(false);
@@ -529,7 +534,7 @@ export default function AdminDashboard() {
     if (!confirm('Are you sure you want to delete this project?')) return;
     try {
       await apiFetch(`/api/portfolio/projects/${id}`, { method: 'DELETE' });
-      setProjects(projects.filter(p => p.id !== id));
+      setProjects(projects.filter(p => (p.id || p._id) !== id));
       showStatus('success', 'Project deleted.');
     } catch (err) {
       showStatus('error', 'Failed to delete project.');
@@ -547,14 +552,15 @@ export default function AdminDashboard() {
           method: 'PUT',
           body: JSON.stringify(achievementForm)
         });
-        setAchievements(achievements.map(a => a.id === achievementForm.id ? updated.data : a));
+        const norm = normalizeItem(updated.data);
+        setAchievements(achievements.map(a => (a.id || a._id) === achievementForm.id ? norm : a));
         showStatus('success', 'Milestone updated.');
       } else {
         const created = await apiFetch('/api/portfolio/achievements', {
           method: 'POST',
           body: JSON.stringify(achievementForm)
         });
-        setAchievements([...achievements, created.data]);
+        setAchievements([...achievements, normalizeItem(created.data)]);
         showStatus('success', 'Milestone added.');
       }
       setAchievementModal(false);
@@ -567,7 +573,7 @@ export default function AdminDashboard() {
     if (!confirm('Are you sure you want to delete this milestone?')) return;
     try {
       await apiFetch(`/api/portfolio/achievements/${id}`, { method: 'DELETE' });
-      setAchievements(achievements.filter(a => a.id !== id));
+      setAchievements(achievements.filter(a => (a.id || a._id) !== id));
       showStatus('success', 'Milestone deleted.');
     } catch (err) {
       showStatus('error', 'Failed to delete milestone.');
@@ -585,14 +591,15 @@ export default function AdminDashboard() {
           method: 'PUT',
           body: JSON.stringify(experienceForm)
         });
-        setExperience(experience.map(x => x.id === experienceForm.id ? updated.data : x));
+        const norm = normalizeItem(updated.data);
+        setExperience(experience.map(x => (x.id || x._id) === experienceForm.id ? norm : x));
         showStatus('success', 'Experience updated.');
       } else {
         const created = await apiFetch('/api/portfolio/experience', {
           method: 'POST',
           body: JSON.stringify(experienceForm)
         });
-        setExperience([...experience, created.data]);
+        setExperience([...experience, normalizeItem(created.data)]);
         showStatus('success', 'Experience added.');
       }
       setExperienceModal(false);
@@ -605,7 +612,7 @@ export default function AdminDashboard() {
     if (!confirm('Delete this experience?')) return;
     try {
       await apiFetch(`/api/portfolio/experience/${id}`, { method: 'DELETE' });
-      setExperience(experience.filter(x => x.id !== id));
+      setExperience(experience.filter(x => (x.id || x._id) !== id));
       showStatus('success', 'Experience deleted.');
     } catch (err) {
       showStatus('error', 'Failed to delete experience.');
@@ -623,14 +630,15 @@ export default function AdminDashboard() {
           method: 'PUT',
           body: JSON.stringify(educationForm)
         });
-        setEducation(education.map(x => x.id === educationForm.id ? updated.data : x));
+        const norm = normalizeItem(updated.data);
+        setEducation(education.map(x => (x.id || x._id) === educationForm.id ? norm : x));
         showStatus('success', 'Education updated.');
       } else {
         const created = await apiFetch('/api/portfolio/education', {
           method: 'POST',
           body: JSON.stringify(educationForm)
         });
-        setEducation([...education, created.data]);
+        setEducation([...education, normalizeItem(created.data)]);
         showStatus('success', 'Education added.');
       }
       setEducationModal(false);
@@ -643,7 +651,7 @@ export default function AdminDashboard() {
     if (!confirm('Delete this education entry?')) return;
     try {
       await apiFetch(`/api/portfolio/education/${id}`, { method: 'DELETE' });
-      setEducation(education.filter(x => x.id !== id));
+      setEducation(education.filter(x => (x.id || x._id) !== id));
       showStatus('success', 'Education deleted.');
     } catch (err) {
       showStatus('error', 'Failed to delete education.');
@@ -661,14 +669,15 @@ export default function AdminDashboard() {
           method: 'PUT',
           body: JSON.stringify(certificationForm)
         });
-        setCertifications(certifications.map(x => x.id === certificationForm.id ? updated.data : x));
+        const norm = normalizeItem(updated.data);
+        setCertifications(certifications.map(x => (x.id || x._id) === certificationForm.id ? norm : x));
         showStatus('success', 'Certification updated.');
       } else {
         const created = await apiFetch('/api/portfolio/certifications', {
           method: 'POST',
           body: JSON.stringify(certificationForm)
         });
-        setCertifications([...certifications, created.data]);
+        setCertifications([...certifications, normalizeItem(created.data)]);
         showStatus('success', 'Certification added.');
       }
       setCertificationModal(false);
@@ -681,7 +690,7 @@ export default function AdminDashboard() {
     if (!confirm('Delete this certification?')) return;
     try {
       await apiFetch(`/api/portfolio/certifications/${id}`, { method: 'DELETE' });
-      setCertifications(certifications.filter(x => x.id !== id));
+      setCertifications(certifications.filter(x => (x.id || x._id) !== id));
       showStatus('success', 'Certification deleted.');
     } catch (err) {
       showStatus('error', 'Failed to delete certification.');
@@ -695,7 +704,7 @@ export default function AdminDashboard() {
     if (!confirm('Are you sure you want to delete this message?')) return;
     try {
       await apiFetch(`/api/portfolio/contacts/${id}`, { method: 'DELETE' });
-      setMessages(messages.filter(m => m.id !== id));
+      setMessages(messages.filter(m => (m.id || m._id) !== id));
       showStatus('success', 'Message deleted.');
     } catch (err) {
       showStatus('error', 'Failed to delete message.');
@@ -1086,7 +1095,7 @@ export default function AdminDashboard() {
                   <tbody className="divide-y divide-card-border/40">
                     {skills.length > 0 ? (
                       skills.map((skill) => (
-                        <tr key={skill.id} className="hover:bg-card-border/10">
+                        <tr key={skill._id || skill.id} className="hover:bg-card-border/10">
                           <td className="p-4 font-semibold">{skill.name}</td>
                           <td className="p-4">
                             <span className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-card-border/40 border border-card-border text-foreground/80 uppercase">
@@ -1151,12 +1160,12 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {projects.length > 0 ? (
                   projects.map((proj) => (
-                    <div key={proj.id} className="p-5 rounded-2xl glass-panel border border-card-border flex flex-col justify-between space-y-4 shadow-sm">
+                    <div key={proj._id || proj.id} className="p-5 rounded-2xl glass-panel border border-card-border flex flex-col justify-between space-y-4 shadow-sm">
                       <div className="space-y-2">
                         <div className="flex items-start justify-between gap-4">
                           <h3 className="font-bold text-sm tracking-wide font-display truncate">{proj.title}</h3>
-                          {proj.imageUrl && (
-                            <img src={getUploadUrl(proj.imageUrl)} alt={proj.title} className="w-12 h-10 object-cover rounded-lg border-2 border-white dark:border-[#3a1d5c] bg-white" />
+                          {(proj.imageUrls?.[0] || proj.imageUrl) && (
+                            <img src={getUploadUrl(proj.imageUrls?.[0] || proj.imageUrl)} alt={proj.title} className="w-12 h-10 object-cover rounded-lg border-2 border-white dark:border-[#3a1d5c] bg-white" />
                           )}
                         </div>
                         <p className="text-xs text-foreground/75 line-clamp-3">{proj.description}</p>
@@ -1220,7 +1229,7 @@ export default function AdminDashboard() {
               <div className="space-y-3">
                 {achievements.length > 0 ? (
                   achievements.map((ach) => (
-                    <div key={ach.id} className="p-4 rounded-xl border border-card-border bg-card/40 flex items-start justify-between shadow-sm">
+                    <div key={ach._id || ach.id} className="p-4 rounded-xl border border-card-border bg-card/40 flex items-start justify-between shadow-sm">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-accent tracking-wider uppercase">{ach.date}</span>
@@ -1274,7 +1283,7 @@ export default function AdminDashboard() {
               <div className="space-y-3">
                 {experience.length > 0 ? (
                   experience.map((exp) => (
-                    <div key={exp.id} className="p-5 rounded-2xl glass-panel border border-card-border flex items-start justify-between shadow-sm gap-4">
+                    <div key={exp._id || exp.id} className="p-5 rounded-2xl glass-panel border border-card-border flex items-start justify-between shadow-sm gap-4">
                       <div className="space-y-1 flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs font-bold text-accent tracking-wider uppercase">{exp.date}</span>
@@ -1316,7 +1325,7 @@ export default function AdminDashboard() {
               <div className="space-y-3">
                 {education.length > 0 ? (
                   education.map((edu) => (
-                    <div key={edu.id} className="p-5 rounded-2xl glass-panel border border-card-border flex items-start justify-between shadow-sm gap-4">
+                    <div key={edu._id || edu.id} className="p-5 rounded-2xl glass-panel border border-card-border flex items-start justify-between shadow-sm gap-4">
                       <div className="space-y-1 flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs font-bold text-indigo-500 tracking-wider uppercase">{edu.date}</span>
@@ -1358,7 +1367,7 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {certifications.length > 0 ? (
                   certifications.map((cert) => (
-                    <div key={cert.id} className="p-5 rounded-2xl glass-panel border border-card-border shadow-sm space-y-2">
+                    <div key={cert._id || cert.id} className="p-5 rounded-2xl glass-panel border border-card-border shadow-sm space-y-2">
                       <div className="flex items-start justify-between gap-2">
                         <div className="space-y-1 flex-1 min-w-0">
                           <span className="text-[10px] font-bold text-teal-500 tracking-wider uppercase">{cert.date}</span>
@@ -1389,7 +1398,7 @@ export default function AdminDashboard() {
               <div className="space-y-4">
                 {messages.length > 0 ? (
                   messages.map((msg) => (
-                    <div key={msg.id} className="p-5 rounded-2xl glass-panel border border-card-border space-y-3 shadow-sm">
+                    <div key={msg._id || msg.id} className="p-5 rounded-2xl glass-panel border border-card-border space-y-3 shadow-sm">
                       <div className="flex items-start justify-between border-b border-card-border/60 pb-2.5">
                         <div>
                           <h4 className="font-bold text-sm font-display">{msg.name}</h4>

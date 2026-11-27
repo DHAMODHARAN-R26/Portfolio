@@ -9,14 +9,9 @@ export default function AIOfflineIndicator() {
   useEffect(() => {
     async function checkStatus() {
       try {
-        const response = await fetch('http://localhost:5000/health');
-        if (response.ok) {
-          const data = await response.json();
-          // If backend has aiConfigured property (we'll make sure it does or check if fallback is active)
-          setIsOffline(data.aiConfigured === false);
-        } else {
-          setIsOffline(true);
-        }
+        const data = await apiFetch('/health');
+        // If backend has aiConfigured property (we'll make sure it does or check if fallback is active)
+        setIsOffline(data.aiConfigured === false);
       } catch (err) {
         setIsOffline(true);
       } finally {

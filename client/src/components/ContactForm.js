@@ -26,6 +26,11 @@ export default function ContactForm() {
     setLoading(true);
     setStatus({ type: '', message: '' });
 
+    // Pre-calculate fallback mailto link so it's ready even if server is unreachable
+    const mailtoSubject = encodeURIComponent(`[Portfolio Direct Inquiry] ${formData.subject || 'New Message'} from ${formData.name}`);
+    const mailtoBody = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nSubject: ${formData.subject || 'None'}\n\nMessage:\n${formData.message}\n\n--\nSent via Dhamodharan's Portfolio`);
+    const fallbackMailto = `mailto:dhamodharanr08@gmail.com?subject=${mailtoSubject}&body=${mailtoBody}`;
+
     try {
       const res = await apiFetch('/api/portfolio/contact', {
         method: 'POST',
@@ -34,14 +39,24 @@ export default function ContactForm() {
       setStatus({ 
         type: 'success', 
         message: res?.message || 'Transmission received. Delivered to Dhamodharan.',
-        mailtoUrl: res?.mailtoUrl,
+        mailtoUrl: res?.mailtoUrl || fallbackMailto,
         emailed: res?.emailed,
         receiver: res?.receiver || 'dhamodharanr08@gmail.com'
       });
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (err) {
-      console.error(err);
-      setStatus({ type: 'error', message: err.message || 'Failed to transmit message. Please try again.' });
+      console.error('Contact Form transmission error:', err);
+      const isConnectionIssue = err.message?.includes('connect') || err.message?.toLowerCase().includes('failed to fetch');
+      const helpfulMessage = isConnectionIssue
+        ? 'Could not reach the backend server. If testing locally, please run "npm run dev" from the project root so both client and server are running. If deployed, ensure NEXT_PUBLIC_API_URL is configured in your hosting dashboard.'
+        : (err.message || 'Failed to transmit message. Please try again.');
+
+      setStatus({ 
+        type: 'error', 
+        message: helpfulMessage,
+        mailtoUrl: fallbackMailto,
+        receiver: 'dhamodharanr08@gmail.com'
+      });
     } finally {
       setLoading(false);
     }

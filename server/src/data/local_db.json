@@ -6,7 +6,7 @@
     "image": "/uploads/file-1795176077357-301149090-WhatsApp_Image_2026-11-20_at_3.45.59_PM.jpeg",
     "resume": "/uploads/file-1795176105621-809389694-DHAMODHARAN__R_RESUME.pdf",
     "github": "https://github.com/DHAMODHARAN-R26",
-    "linkedin": "https://linkedin.com/in/dhamo-r",
+    "linkedin": "https://www.linkedin.com/in/dhamo-r",
     "email": "dhamodharancse26@gmail.com",
     "phone": "+91 8778119621",
     "location": "Pondicherry, India"
@@ -74,133 +74,133 @@
     },
     {
       "id": "sk-11",
-      "name": "Apache Hadoop",
+      "name": "MongoDB",
       "category": "Databases",
-      "percentage": 80
+      "percentage": 82
     },
     {
       "id": "sk-12",
+      "name": "Apache Hadoop",
+      "category": "Big Data",
+      "percentage": 80
+    },
+    {
+      "id": "sk-13",
       "name": "Pandas",
       "category": "AI & Data Science",
       "percentage": 86
     },
     {
-      "id": "sk-13",
+      "id": "sk-14",
       "name": "NumPy",
       "category": "AI & Data Science",
       "percentage": 88
     },
     {
-      "id": "sk-14",
+      "id": "sk-15",
       "name": "Matplotlib",
       "category": "AI & Data Science",
       "percentage": 85
     },
     {
-      "id": "sk-15",
+      "id": "sk-16",
       "name": "NLTK",
       "category": "AI & Data Science",
       "percentage": 82
     },
     {
-      "id": "sk-16",
+      "id": "sk-17",
       "name": "DSA",
       "category": "Core CS",
       "percentage": 90
     },
     {
-      "id": "sk-17",
+      "id": "sk-18",
       "name": "OOP",
       "category": "Core CS",
       "percentage": 92
     },
     {
-      "id": "sk-18",
+      "id": "sk-19",
       "name": "DBMS",
       "category": "Core CS",
       "percentage": 88
     },
     {
-      "id": "sk-19",
+      "id": "sk-20",
       "name": "Operating Systems",
       "category": "Core CS",
       "percentage": 85
     },
     {
-      "id": "sk-20",
+      "id": "sk-21",
       "name": "Computer Networks",
       "category": "Core CS",
       "percentage": 85
     },
     {
-      "id": "sk-21",
+      "id": "sk-22",
       "name": "Arduino",
       "category": "IoT & Embedded",
       "percentage": 90
     },
     {
-      "id": "sk-22",
+      "id": "sk-23",
       "name": "Raspberry Pi",
       "category": "IoT & Embedded",
       "percentage": 88
     },
     {
-      "id": "sk-23",
+      "id": "sk-24",
       "name": "STM32 & Sensors",
       "category": "IoT & Embedded",
       "percentage": 86
     },
     {
-      "id": "sk-24",
+      "id": "sk-25",
       "name": "GSM Modules",
       "category": "IoT & Embedded",
       "percentage": 84
     },
     {
-      "id": "sk-25",
-      "name": "Git & GitHub",
+      "id": "sk-26",
+      "name": "Git",
       "category": "Tools",
       "percentage": 92
     },
     {
-      "id": "sk-26",
+      "id": "sk-27",
+      "name": "GitHub",
+      "category": "Tools",
+      "percentage": 92
+    },
+    {
+      "id": "sk-28",
       "name": "VS Code",
       "category": "Tools",
       "percentage": 95
     },
     {
-      "id": "sk-27",
+      "id": "sk-29",
       "name": "PyCharm",
       "category": "Tools",
       "percentage": 88
     },
     {
-      "id": "sk-28",
-      "name": "Communication Skills",
-      "category": "Soft Skills",
-      "percentage": 92
-    },
-    {
-      "id": "sk-29",
+      "id": "sk-30",
       "name": "Problem-Solving",
       "category": "Soft Skills",
       "percentage": 95
     },
     {
-      "id": "sk-30",
-      "name": "Teamwork",
+      "id": "sk-31",
+      "name": "Communication",
       "category": "Soft Skills",
       "percentage": 92
     },
     {
-      "id": "sk-31",
-      "name": "Time Management",
-      "category": "Soft Skills",
-      "percentage": 90
-    },
-    {
       "id": "sk-32",
-      "name": "Adaptability",
+      "name": "Teamwork",
       "category": "Soft Skills",
       "percentage": 92
     },
@@ -212,21 +212,21 @@
     },
     {
       "id": "sk-34",
-      "name": "Critical Thinking",
+      "name": "Adaptability",
       "category": "Soft Skills",
-      "percentage": 90
+      "percentage": 92
     },
     {
       "id": "sk-35",
-      "name": "Creativity",
+      "name": "Critical Thinking",
       "category": "Soft Skills",
-      "percentage": 92
+      "percentage": 90
     }
   ],
   "projects": [
     {
       "id": "pr-1",
-      "title": "Nivora – Smart Intelligent Mountain Road Safety System",
+      "title": "NIVORA – Smart Intelligent Mountain Road Safety System",
       "description": "Developed an IoT-based road safety solution to detect approaching vehicles at blind curves and reduce accident risks. Implemented bidirectional alerts, GPS-based emergency SOS functionality, and fail-safe mechanisms for communication and power failures.",
       "techStack": [
         "IoT",
@@ -237,12 +237,15 @@
       ],
       "githubUrl": "https://github.com/DHAMODHARAN-R26",
       "demoUrl": "",
-      "imageUrl": "/uploads/file-1781844627553-966569308.png"
+      "imageUrls": [
+        "/uploads/file-1781844627553-966569308.png"
+      ],
+      "reportUrls": []
     },
     {
       "id": "pr-2",
-      "title": "Zerora – Advanced Water Monitoring & Automatic Cleaning System",
-      "description": "Built an intelligent water monitoring solution using pH, turbidity, and TDS sensors. Implemented real-time contamination detection, automatic cleaning mechanisms to flush and refill contaminated water, and alert notifications for water-quality management.",
+      "title": "ZERORA – Advanced Water Monitoring & Automatic Cleaning System",
+      "description": "Developed an intelligent water monitoring solution using pH, turbidity, and TDS sensors. Implemented real-time contamination detection, automatic cleaning mechanisms, and alert notifications for water-quality management.",
       "techStack": [
         "IoT",
         "pH Sensor",
@@ -253,12 +256,15 @@
       ],
       "githubUrl": "https://github.com/DHAMODHARAN-R26",
       "demoUrl": "",
-      "imageUrl": "/uploads/file-1781844638364-183887740.png"
+      "imageUrls": [
+        "/uploads/file-1781844638364-183887740.png"
+      ],
+      "reportUrls": []
     },
     {
       "id": "pr-3",
-      "title": "InOrOut – Real-Time Smart Faculty Availability & Notification System",
-      "description": "Developed a system to track faculty availability using real-time entry/exit sensor detection. Implemented sensor-based monitoring to update status automatically, designed notification system to inform students about faculty presence, and improved communication efficiency within the institution.",
+      "title": "INOROUT – Real-Time Smart Faculty Availability & Notification System",
+      "description": "Developed a system to track faculty availability using real-time entry/exit sensor detection and a web platform for managing departmental communication. Implemented sensor-based monitoring to update status automatically and designed an accessible notification interface to inform students about faculty presence.",
       "techStack": [
         "IoT",
         "Entry/Exit Sensors",
@@ -268,12 +274,16 @@
       ],
       "githubUrl": "https://github.com/DHAMODHARAN-R26",
       "demoUrl": "",
-      "imageUrl": "/uploads/file-1782100119236-923544116.jpeg",
-      "reportUrl": "/uploads/file-1782100108233-632558747.pdf"
+      "imageUrls": [
+        "/uploads/file-1782100119236-923544116.jpeg"
+      ],
+      "reportUrls": [
+        "/uploads/file-1782100108233-632558747.pdf"
+      ]
     },
     {
       "id": "pr-4",
-      "title": "Digilog – Digital Student Monitoring System",
+      "title": "DIGILOG – Digital Student Monitoring System",
       "description": "Developed a digital platform to manage student academic records, attendance, assignments, and other activities. Implemented structured data management and automated record tracking to improve information accessibility and monitoring efficiency.",
       "techStack": [
         "Data Logging",
@@ -284,12 +294,13 @@
       ],
       "githubUrl": "https://github.com/DHAMODHARAN-R26",
       "demoUrl": "",
-      "imageUrl": ""
+      "imageUrls": [],
+      "reportUrls": []
     },
     {
       "id": "pr-5",
       "title": "CSENEXUS – Department Coordination Website",
-      "description": "Developed a web platform for managing departmental activities, announcements, and communication. Designed an accessible user-friendly interface to improve information sharing between students and faculty members.",
+      "description": "Developed a web platform for managing departmental activities, announcements, and communication. Designed an accessible user interface to improve information sharing between students and faculty members.",
       "techStack": [
         "Web Development",
         "Frontend",
@@ -299,7 +310,8 @@
       ],
       "githubUrl": "https://github.com/DHAMODHARAN-R26",
       "demoUrl": "",
-      "imageUrl": ""
+      "imageUrls": [],
+      "reportUrls": []
     },
     {
       "id": "pr-6",
@@ -314,7 +326,8 @@
       ],
       "githubUrl": "https://github.com/DHAMODHARAN-R26",
       "demoUrl": "",
-      "imageUrl": ""
+      "imageUrls": [],
+      "reportUrls": []
     },
     {
       "id": "pr-7",
@@ -328,12 +341,13 @@
       ],
       "githubUrl": "https://github.com/DHAMODHARAN-R26",
       "demoUrl": "",
-      "imageUrl": ""
+      "imageUrls": [],
+      "reportUrls": []
     },
     {
       "id": "pr-8",
       "title": "AQUANEST – Smart Water Management System",
-      "description": "Developed an automated pond cleaning and water-quality management system. Integrated sensors and automated mechanisms to monitor pond conditions, reduce manual cleaning efforts, and implemented a real-time dashboard for sensor telemetry visualization.",
+      "description": "Developed an automated pond cleaning and water-quality management system. Integrated sensors and automated mechanisms to monitor pond conditions and reduce manual cleaning efforts. Implemented a dashboard to display real-time water-quality monitoring results and sensor readings, enabling centralized visualization of pond conditions to support effective monitoring and management.",
       "techStack": [
         "IoT",
         "Water Quality Sensors",
@@ -343,7 +357,8 @@
       ],
       "githubUrl": "https://github.com/DHAMODHARAN-R26",
       "demoUrl": "",
-      "imageUrl": ""
+      "imageUrls": [],
+      "reportUrls": []
     },
     {
       "id": "pr-9",
@@ -357,121 +372,8 @@
       ],
       "githubUrl": "https://github.com/DHAMODHARAN-R26",
       "demoUrl": "",
-      "imageUrl": ""
-    }
-  ],
-  "achievements": [
-    {
-      "id": "ac-1",
-      "title": "Shortlisted for Smart India Hackathon (SIH)",
-      "issuer": "Smart India Hackathon",
-      "date": "2025",
-      "description": "Shortlisted among nationwide entries for designing innovative engineering solutions to solve real-world problems.",
-      "imageUrl": "",
-      "githubUrl": "https://github.com/DHAMODHARAN-R26"
-    },
-    {
-      "id": "ac-2",
-      "title": "Finalist – YI Hackathon 6.0",
-      "issuer": "Young Indians (YI)",
-      "date": "2025",
-      "description": "Finalist and awarded exclusive mentorship opportunity for outstanding technical performance.",
-      "imageUrl": "",
-      "githubUrl": ""
-    },
-    {
-      "id": "ac-3",
-      "title": "Received Funding Through MSME 5.0 Hackathon",
-      "issuer": "Ministry of Micro, Small & Medium Enterprises (MSME)",
-      "date": "2025",
-      "description": "Secured government innovation grant funding through the MSME 5.0 Hackathon for viable technical product prototyping.",
-      "imageUrl": "",
-      "githubUrl": ""
-    },
-    {
-      "id": "ac-4",
-      "title": "1st Prize – Paper Presentation",
-      "issuer": "Pondicherry Technological University (PTU)",
-      "date": "2026",
-      "description": "Awarded first place for presenting technical research and engineering architecture.",
-      "imageUrl": "",
-      "githubUrl": "",
-      "reportUrls": [
-        "/uploads/files-1782119994746-239230280-NLH_2026__1_.pdf"
-      ],
-      "reportUrl": "/uploads/files-1782119994746-239230280-NLH_2026__1_.pdf"
-    },
-    {
-      "id": "ac-5",
-      "title": "2nd Prize – Paper Presentation",
-      "issuer": "Pondicherry Technological University (PTU)",
-      "date": "2026",
-      "description": "Awarded second place for technical paper presentation.",
-      "imageUrl": "",
-      "githubUrl": ""
-    },
-    {
-      "id": "ac-6",
-      "title": "2nd Prize – Paper Presentation",
-      "issuer": "Pondicherry Technological University (PTU)",
-      "date": "2025",
-      "description": "Awarded second place for technical paper presentation.",
-      "imageUrl": "",
-      "githubUrl": ""
-    },
-    {
-      "id": "ac-7",
-      "title": "2nd Prize – Paper Presentation (Azollax Project)",
-      "issuer": "Pondicherry Technological University (PTU)",
-      "date": "2025",
-      "description": "Presented technical development and empirical research on the Azollax project.",
-      "imageUrl": "",
-      "githubUrl": ""
-    },
-    {
-      "id": "ac-8",
-      "title": "1st Prize – National Science Day Expo",
-      "issuer": "Achariya College of Engineering and Technology",
-      "date": "2026",
-      "description": "Won first prize in the national-level science exhibition for innovative engineering prototype demonstration.",
-      "imageUrl": "",
-      "githubUrl": ""
-    },
-    {
-      "id": "ac-9",
-      "title": "3rd Prize – National Science Day Expo",
-      "issuer": "Achariya College of Engineering and Technology",
-      "date": "2026",
-      "description": "Awarded third place in the national science expo.",
-      "imageUrl": "",
-      "githubUrl": ""
-    },
-    {
-      "id": "ac-10",
-      "title": "2nd Prize – Poster Presentation",
-      "issuer": "Achariya College of Engineering and Technology",
-      "date": "2026",
-      "description": "Awarded second place for technical poster design and clarity of engineering communication.",
-      "imageUrl": "",
-      "githubUrl": ""
-    },
-    {
-      "id": "ac-11",
-      "title": "1st Prize – Reverse Engineering",
-      "issuer": "Achariya College of Engineering and Technology",
-      "date": "2026",
-      "description": "Won 1st place for technical decompilation, logical circuit deduction, and deep reverse engineering diagnostics.",
-      "imageUrl": "",
-      "githubUrl": ""
-    },
-    {
-      "id": "ac-12",
-      "title": "2nd Prize – Code Debugging",
-      "issuer": "Achariya College of Engineering and Technology",
-      "date": "2026",
-      "description": "Awarded second place for rapid fault localization, memory leak tracing, and syntax/logic debugging.",
-      "imageUrl": "",
-      "githubUrl": ""
+      "imageUrls": [],
+      "reportUrls": []
     }
   ],
   "experience": [
@@ -481,9 +383,9 @@
       "company": "Vulture Management Wings Pvt. Ltd. (LinesOftech)",
       "date": "July 2026",
       "description": "Contributed to the development and implementation of AI/ML-based software applications. Applied machine learning concepts, analytical thinking, and software engineering principles to practical development tasks. Collaborated with engineers and team members to design, develop, and improve application functionality.",
-      "imageUrl": "",
+      "imageUrls": [],
       "githubUrl": "",
-      "reportUrl": ""
+      "reportUrls": []
     },
     {
       "id": "ex-2",
@@ -491,26 +393,28 @@
       "company": "SkillBuilder Academy",
       "date": "Dec 2025 – Jan 2026",
       "description": "Developed web pages and user interface components using web development tools and technologies. Explored frontend–backend integration, application routing, and project architecture. Gained practical exposure to website development, application workflows, and deployment concepts.",
-      "imageUrl": "/uploads/file-1781797984975-152057615.png",
+      "imageUrls": [
+        "/uploads/file-1781797984975-152057615.png"
+      ],
       "githubUrl": "",
-      "reportUrl": "/uploads/file-1782101063978-515803204.pdf"
+      "reportUrls": [
+        "/uploads/file-1782101063978-515803204.pdf"
+      ]
     }
   ],
   "education": [
     {
       "id": "ed-1",
-      "degree": "B.Tech In Computer Science & Engineering",
-      "institution": "Achariya College Of Engineering Technology, Puducherry",
+      "degree": "B.Tech, Computer Science and Engineering",
+      "institution": "Achariya College of Engineering and Technology, Puducherry",
       "date": "2024 – 2028",
       "description": "CGPA: 9.05 / 10 | Pre-final-year student specializing in Software Development, AI/ML applications, and IoT-based intelligent systems.",
-      "imageUrl": "/uploads/files-1782117713412-444946696.jpeg",
+      "imageUrls": [
+        "/uploads/files-1782117713412-444946696.jpeg"
+      ],
       "githubUrl": "",
       "reportUrls": [
         "/uploads/files-1782117622495-632531694.pdf"
-      ],
-      "reportUrl": "/uploads/files-1782117622495-632531694.pdf",
-      "imageUrls": [
-        "/uploads/files-1782117713412-444946696.jpeg"
       ]
     },
     {
@@ -518,8 +422,8 @@
       "degree": "Class XII (TNSCERT)",
       "institution": "Rani Seethai Achi Higher Secondary School, Chidambaram",
       "date": "2024",
-      "description": "Higher Secondary Examination (HSC) — Score: 91% (Distinction in Science & Mathematics Stream)",
-      "imageUrl": "",
+      "description": "Higher Secondary Examination (HSC) — Score: 91%",
+      "imageUrls": [],
       "githubUrl": "",
       "reportUrls": []
     },
@@ -529,7 +433,7 @@
       "institution": "Government Higher Secondary School, Chidambaram",
       "date": "2022",
       "description": "Secondary School Leaving Certificate (SSLC) — Score: 81%",
-      "imageUrl": "",
+      "imageUrls": [],
       "githubUrl": "",
       "reportUrls": []
     }
@@ -541,70 +445,171 @@
       "issuer": "CodeBuilders (Ongoing)",
       "date": "Ongoing",
       "description": "Comprehensive program focused on building fully integrated web applications, client-server architectures, and deployment workflows.",
-      "imageUrl": "/uploads/file-1781798006281-637074272.png",
-      "githubUrl": ""
+      "imageUrls": [
+        "/uploads/file-1781798006281-637074272.png"
+      ],
+      "githubUrl": "",
+      "reportUrls": []
     },
     {
       "id": "ce-2",
       "title": "AI & Machine Learning Workshop",
       "issuer": "Indian Institute of Science (IISc)",
       "date": "2026",
-      "description": "Advanced workshop exploring cutting-edge developments in Artificial Intelligence, Machine Learning models, and predictive analytics.",
-      "imageUrl": "",
-      "githubUrl": ""
+      "description": "Hands-on workshop covering AI models, machine learning fundamentals, and predictive analytics.",
+      "imageUrls": [],
+      "githubUrl": "",
+      "reportUrls": []
     },
     {
       "id": "ce-3",
       "title": "Python Acceleration Program",
       "issuer": "Ministry of Micro, Small and Medium Enterprises (MSME)",
       "date": "2025",
-      "description": "Government-accredited intensive program focusing on advanced Python development, optimization, and real-world script automation.",
-      "imageUrl": "",
+      "description": "Intensive program focused on Python development, optimization, and practical application.",
+      "imageUrls": [],
       "githubUrl": "",
       "reportUrls": [
         "/uploads/files-1782117634124-8584961.pdf",
         "/uploads/files-1782119774788-105883579-NLH3.pdf"
-      ],
-      "reportUrl": "/uploads/files-1782119774788-105883579-NLH3.pdf"
+      ]
     },
     {
       "id": "ce-4",
       "title": "Programming with Data Structures and Algorithms",
       "issuer": "NPTEL",
       "date": "2025",
-      "description": "Rigorous academic certification covering asymptotic algorithmic complexity, tree/graph traversals, dynamic programming, and memory-efficient data structures.",
-      "imageUrl": "",
+      "description": "Coursework covering algorithmic complexity, data structures, and problem-solving techniques.",
+      "imageUrls": [],
       "githubUrl": "",
       "reportUrls": [
         "/uploads/files-1782118466492-316622051-NLH3__1_.pdf"
-      ],
-      "reportUrl": "/uploads/files-1782118466492-316622051-NLH3__1_.pdf"
+      ]
     }
   ],
-  "contacts": [
+  "achievements": [
     {
-      "id": "co-1782134296712",
-      "createdAt": "2026-06-22T13:18:16.712Z",
-      "name": "Dhamodharan",
-      "email": "adyfda@gmail.com",
-      "subject": "happy",
-      "message": "hire Me"
+      "id": "ac-1",
+      "title": "Shortlisted for Smart India Hackathon (SIH)",
+      "issuer": "Smart India Hackathon",
+      "date": "2025",
+      "description": "Shortlisted among top teams for designing innovative engineering solutions to solve real-world problems.",
+      "imageUrls": [],
+      "githubUrl": "https://github.com/DHAMODHARAN-R26",
+      "reportUrls": []
     },
     {
-      "id": "co-1795166127677",
-      "createdAt": "2026-11-20T09:15:27.678Z",
-      "name": "DHAMO",
-      "email": "dhamodharanrajaraman780@gmail.com",
-      "subject": "IINTERN",
-      "message": "CONGULATIONS , U ARE SELECTED FOR AN AI INTERN"
+      "id": "ac-2",
+      "title": "Finalist – YI Hackathon 6.0",
+      "issuer": "Young Indians (YI)",
+      "date": "2025",
+      "description": "Finalist – YI Hackathon 6.0, awarded a mentorship opportunity for best performance.",
+      "imageUrls": [],
+      "githubUrl": "",
+      "reportUrls": []
     },
     {
-      "id": "co-1795166592238",
-      "createdAt": "2026-11-20T09:23:12.238Z",
-      "name": "DHAMO",
-      "email": "dhamodharanrajaraman780@gmail.com",
-      "subject": "IINTERN",
-      "message": "HIRED U"
+      "id": "ac-3",
+      "title": "Received Funding Through MSME 5.0 Hackathon",
+      "issuer": "Ministry of Micro, Small and Medium Enterprises (MSME)",
+      "date": "2025",
+      "description": "Received funding through MSME 5.0 Hackathon for innovative technical product development.",
+      "imageUrls": [],
+      "githubUrl": "",
+      "reportUrls": []
+    },
+    {
+      "id": "ac-4",
+      "title": "1st Prize – Paper Presentation",
+      "issuer": "Pondicherry Technological University (PTU)",
+      "date": "2026",
+      "description": "Awarded 1st Prize in Paper Presentation at Pondicherry Technological University.",
+      "imageUrls": [],
+      "githubUrl": "",
+      "reportUrls": [
+        "/uploads/files-1782119994746-239230280-NLH_2026__1_.pdf"
+      ]
+    },
+    {
+      "id": "ac-5",
+      "title": "2nd Prize – Paper Presentation",
+      "issuer": "Pondicherry Technological University (PTU)",
+      "date": "2026",
+      "description": "Awarded 2nd Prize in Paper Presentation at Pondicherry Technological University.",
+      "imageUrls": [],
+      "githubUrl": "",
+      "reportUrls": []
+    },
+    {
+      "id": "ac-6",
+      "title": "2nd Prize – Paper Presentation",
+      "issuer": "Pondicherry Technological University (PTU)",
+      "date": "2025",
+      "description": "Awarded 2nd Prize in Paper Presentation at Pondicherry Technological University.",
+      "imageUrls": [],
+      "githubUrl": "",
+      "reportUrls": []
+    },
+    {
+      "id": "ac-7",
+      "title": "2nd Prize – Paper Presentation (Azollax Project)",
+      "issuer": "Pondicherry Technological University (PTU)",
+      "date": "2025",
+      "description": "Awarded 2nd Prize in Paper Presentation for the Azollax Project at Pondicherry Technological University.",
+      "imageUrls": [],
+      "githubUrl": "",
+      "reportUrls": []
+    },
+    {
+      "id": "ac-8",
+      "title": "1st Prize – National Science Day Expo",
+      "issuer": "Achariya College of Engineering Technology",
+      "date": "2026",
+      "description": "Won 1st Prize at the National Science Day Expo (2026) at Achariya College of Engineering Technology.",
+      "imageUrls": [],
+      "githubUrl": "",
+      "reportUrls": []
+    },
+    {
+      "id": "ac-9",
+      "title": "3rd Prize – National Science Day Expo",
+      "issuer": "Achariya College of Engineering Technology",
+      "date": "2026",
+      "description": "Awarded 3rd Prize at the National Science Day Expo (2026) at Achariya College of Engineering Technology.",
+      "imageUrls": [],
+      "githubUrl": "",
+      "reportUrls": []
+    },
+    {
+      "id": "ac-10",
+      "title": "2nd Prize – Poster Presentation",
+      "issuer": "Achariya College of Engineering Technology",
+      "date": "2026",
+      "description": "Awarded 2nd Prize in Poster Presentation at Achariya College of Engineering Technology.",
+      "imageUrls": [],
+      "githubUrl": "",
+      "reportUrls": []
+    },
+    {
+      "id": "ac-11",
+      "title": "1st Prize – Reverse Engineering",
+      "issuer": "Achariya College of Engineering Technology",
+      "date": "2026",
+      "description": "Won 1st Prize in Reverse Engineering at Achariya College of Engineering Technology.",
+      "imageUrls": [],
+      "githubUrl": "",
+      "reportUrls": []
+    },
+    {
+      "id": "ac-12",
+      "title": "2nd Prize – Code Debugging",
+      "issuer": "Achariya College of Engineering Technology",
+      "date": "2026",
+      "description": "Awarded 2nd Prize in Code Debugging at Achariya College of Engineering Technology.",
+      "imageUrls": [],
+      "githubUrl": "",
+      "reportUrls": []
     }
-  ]
+  ],
+  "contacts": []
 }
